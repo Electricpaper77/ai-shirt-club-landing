@@ -6,7 +6,6 @@ import {
   CalendarDays,
   ChevronDown,
   Crown,
-  Gem,
   HelpCircle,
   Layers,
   Lock,
@@ -83,7 +82,7 @@ const gallery = [
 ];
 
 const founderBenefits = [
-  "Founder 100 member number",
+  "Founding 100 member number",
   "Locked founding price",
   "Priority access to limited drops",
   "Annual collector badge",
@@ -91,34 +90,12 @@ const founderBenefits = [
   "Early shipment window",
 ];
 
-const pricing = [
-  {
-    name: "Founding Member",
-    price: "$49",
-    highlight: true,
-    note: "First 100 members",
-    perks: ["Monthly premium shirt", "Founder 100 status", "Locked founding rate"],
-  },
-  {
-    name: "Standard",
-    price: "$59",
-    note: "Core membership",
-    perks: ["Monthly premium shirt", "Exclusive collection access", "Member updates"],
-  },
-  {
-    name: "Premium",
-    price: "$99",
-    note: "Collector tier",
-    perks: ["Monthly premium shirt", "Premium packaging", "Priority collection access"],
-  },
-];
-
 const testimonials = [
   {
     quote:
       "Finally, founder merch that feels intentional enough to wear outside a conference hall.",
     name: "AI founder",
-    role: "Founder 100 preview",
+    role: "Founding 100 preview",
   },
   {
     quote:
@@ -136,24 +113,24 @@ const testimonials = [
 
 const faqs = [
   {
-    question: "What happens after I join the waitlist?",
+    question: "What is AI Shirt Club?",
     answer:
-      "You will be added to the launch list for Founder 100 access. When the first collection opens, invited members will receive the next steps by email.",
+      "AI Shirt Club is a premium collectible apparel membership for AI engineers, builders, founders, and tech professionals. Each month centers on one premium shirt and one exclusive AI-culture collection.",
   },
   {
-    question: "Am I paying today?",
+    question: "Who is it for?",
     answer:
-      "No. The site only links to the Google Form waitlist. There is no checkout, account, payment processing, or subscription billing on this landing page.",
+      "It is for AI engineers, startup founders, indie builders, ML platform teams, DevTool operators, and tech professionals who want sharper apparel than generic conference merch.",
   },
   {
-    question: "What is included each month?",
+    question: "How much will it cost?",
     answer:
-      "The membership is built around one premium shirt and one exclusive collection every month, with founder benefits for the first 100 members.",
+      "The Founding 100 waitlist reserves interest in limited founder access. Final membership pricing will be shared before launch, and this page does not process payment or start a subscription.",
   },
   {
-    question: "Who is AI Shirt Club for?",
+    question: "When do collections launch?",
     answer:
-      "AI engineers, builders, founders, and tech professionals who want collectible apparel designed around AI culture rather than generic tech merch.",
+      "Collections launch after the Founder100 validation list is built. Waitlist members will receive launch status, first-drop timing, and collection details by email.",
   },
 ];
 
@@ -183,17 +160,17 @@ function ScarcityCounter({ compact = false }) {
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
-            Founder 100 Counter
+            1 of 100 Founder Spots Claimed
           </p>
-          <p className="mt-2 text-sm text-slate-300">31 founding spots remaining</p>
+          <p className="mt-2 text-sm text-slate-300">Limited founder access now open</p>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-semibold text-white">69/100</p>
-          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">reserved</p>
+          <p className="text-3xl font-semibold text-white">1/100</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">claimed</p>
         </div>
       </div>
       <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full w-[69%] rounded-full bg-gradient-to-r from-cyan to-violet" />
+        <div className="h-full w-[1%] min-w-2 rounded-full bg-gradient-to-r from-cyan to-violet" />
       </div>
     </div>
   );
@@ -275,6 +252,61 @@ function SectionHeader({ kicker, title, children }) {
   );
 }
 
+function FounderOffer() {
+  return (
+    <section className="py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="grid gap-8 rounded-[2rem] border border-cyan/25 bg-[linear-gradient(135deg,rgba(98,232,255,0.12),rgba(255,255,255,0.04)_42%,rgba(139,111,255,0.1))] p-6 shadow-glow sm:p-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan">
+            Founding 100
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+              Limited founder access for the first 100 validation members.
+          </h2>
+          <p className="mt-5 text-lg leading-8 text-slate-300">
+              Reserve a Founder100 spot to signal demand, get first access to the first
+              collection, and help shape the premium monthly apparel membership before public
+              launch.
+          </p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {[
+                ["100", "Founder spots"],
+                ["1", "Spot claimed"],
+                ["0", "Payment today"],
+            ].map(([metric, label]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-night/50 p-4">
+                  <p className="text-3xl font-semibold text-white">{metric}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                    {label}
+                  </p>
+                </div>
+            ))}
+          </div>
+            <CTA className="mt-8 w-full sm:w-auto">Reserve Founder Spot</CTA>
+        </div>
+        <div className="rounded-3xl border border-white/10 bg-night/70 p-5">
+          <ScarcityCounter />
+          <div className="mt-5 grid gap-3">
+            {[
+                "First access to the launch collection",
+                "Founding 100 member number",
+                "Priority invite before public membership",
+                "Early input on future drops",
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-3 rounded-2xl bg-white/[0.04] p-4">
+                  <BadgeCheck className="h-5 w-5 flex-none text-cyan" aria-hidden="true" />
+                  <p className="text-sm font-semibold text-slate-200">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   return (
     <main className="min-h-screen overflow-hidden bg-night pb-24 text-white sm:pb-20">
@@ -288,14 +320,14 @@ function App() {
             Shirt Club
           </span>
         </a>
-        <CTA className="hidden sm:inline-flex">Join Founder 100</CTA>
+        <CTA className="hidden sm:inline-flex">Reserve Founder Spot</CTA>
       </nav>
 
       <section id="top" className="mx-auto grid min-h-[calc(100vh-80px)] max-w-7xl items-center gap-12 px-5 pb-16 pt-8 sm:px-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-slate-200">
             <Sparkles className="h-4 w-4 text-cyan" aria-hidden="true" />
-            Founder 100 applications now open
+            1 of 100 Founder Spots Claimed
           </div>
           <h1 className="mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
             AI Shirt Club
@@ -308,17 +340,16 @@ function App() {
             and tech professionals who want their uniform to feel as intentional as their work.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <CTA>Join Founder 100</CTA>
-            <CTA variant="secondary">Preview Collections</CTA>
+            <CTA>Reserve Founder Spot</CTA>
           </div>
           <div className="mt-8 max-w-2xl">
             <ScarcityCounter />
           </div>
           <div className="mt-5 grid max-w-2xl grid-cols-3 gap-3">
             {[
-              ["31", "Spots left"],
-              ["12", "Annual drops"],
-              ["$49", "Founder rate"],
+              ["100", "Founder spots"],
+              ["1", "Spot claimed"],
+              ["Open", "Launch status"],
             ].map(([metric, label]) => (
               <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-2xl font-semibold text-white">{metric}</p>
@@ -331,14 +362,23 @@ function App() {
       </section>
 
       <section className="border-y border-white/10 bg-white/[0.025] py-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <Users className="h-5 w-5 text-cyan" aria-hidden="true" />
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
-              Built for people shipping AI products
-            </p>
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              ["Founding Members Joined", "1", Users],
+              ["Waitlist Count", "Building now", BadgeCheck],
+              ["Collection Launch Status", "Validation open", CalendarDays],
+            ].map(([label, value, Icon]) => (
+              <div key={label} className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                <Icon className="h-5 w-5 text-cyan" aria-hidden="true" />
+                <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  {label}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
+              </div>
+            ))}
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap gap-3">
             {socialProof.map((item) => (
               <span
                 key={item}
@@ -379,7 +419,7 @@ function App() {
 
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <SectionHeader kicker="Premium Mockup Gallery" title="A collectible shirt system, not generic merch.">
+          <SectionHeader kicker="Collection Gallery" title="A collectible shirt system, not generic merch.">
             Every drop is designed as a premium object: restrained graphics, technical marks,
             and collection details that reward early members.
           </SectionHeader>
@@ -421,16 +461,16 @@ function App() {
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan">
-                Founder 100
+                Founding 100
               </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
                 The first hundred members get the best version of the club.
               </h2>
               <p className="mt-5 text-lg leading-8 text-slate-300">
                 Founder members are treated like collectors from day one, with numbered status,
-                locked pricing, and early influence on the drops that follow.
+                limited founder access, and early influence on the drops that follow.
               </p>
-              <CTA className="mt-8">Join Founder 100</CTA>
+              <CTA className="mt-8">Reserve Founder Spot</CTA>
               <div className="mt-6">
                 <ScarcityCounter compact />
               </div>
@@ -446,6 +486,39 @@ function App() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div className="rounded-[2rem] border border-white/10 bg-ink p-6 sm:p-8">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan/30 bg-cyan/10">
+                <Sparkles className="h-6 w-6 text-cyan" aria-hidden="true" />
+              </div>
+              <p className="mt-8 text-sm font-semibold uppercase tracking-[0.28em] text-cyan">
+                Founder Story
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+                Built for people who live inside the next wave.
+              </h2>
+            </div>
+            <div className="space-y-5 text-lg leading-8 text-slate-300">
+              <p>
+                AI Shirt Club started from a simple observation: the builders shaping AI culture
+                deserve apparel that feels more collectible than conference swag.
+              </p>
+              <p>
+                The club is designed around monthly artifacts: premium shirts with restrained
+                technical graphics, launch-era references, and limited collection identity.
+              </p>
+              <p>
+                Founder100 is the first circle. The goal is to build the membership with the
+                people who understand why a great shirt can feel like a signal.
+              </p>
+              <CTA className="mt-3 w-full sm:w-auto">Reserve Founder Spot</CTA>
             </div>
           </div>
         </div>
@@ -475,54 +548,11 @@ function App() {
         </div>
       </section>
 
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <SectionHeader kicker="Pricing" title="Choose your monthly collector tier.">
-            No checkout today, no account setup, no payment processing. Join the waitlist and
-            we will invite members as the first collection opens.
-          </SectionHeader>
-          <div className="mt-12 grid gap-5 lg:grid-cols-3">
-            {pricing.map((tier) => (
-              <article
-                key={tier.name}
-                className={`relative rounded-3xl border p-6 ${
-                  tier.highlight
-                    ? "border-cyan/50 bg-cyan/[0.08] shadow-glow"
-                    : "border-white/10 bg-white/[0.04]"
-                }`}
-              >
-                {tier.highlight && (
-                  <div className="absolute right-5 top-5 rounded-full bg-cyan px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-night">
-                    Best entry
-                  </div>
-                )}
-                <Gem className="h-6 w-6 text-cyan" aria-hidden="true" />
-                <h3 className="mt-6 text-2xl font-semibold text-white">{tier.name}</h3>
-                <p className="mt-2 text-sm uppercase tracking-[0.18em] text-slate-400">{tier.note}</p>
-                <div className="mt-6 flex items-end gap-1">
-                  <span className="text-5xl font-semibold tracking-tight text-white">{tier.price}</span>
-                  <span className="pb-2 text-slate-400">/month</span>
-                </div>
-                <ul className="mt-7 space-y-3">
-                  {tier.perks.map((perk) => (
-                    <li key={perk} className="flex gap-3 text-slate-300">
-                      <BadgeCheck className="mt-0.5 h-5 w-5 flex-none text-cyan" aria-hidden="true" />
-                      <span>{perk}</span>
-                    </li>
-                  ))}
-                </ul>
-                <CTA className="mt-8 w-full" variant={tier.highlight ? "primary" : "secondary"}>
-                  Join Waitlist
-                </CTA>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FounderOffer />
 
       <section className="bg-white/[0.025] py-24">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <SectionHeader kicker="FAQ" title="Questions before you join the list." />
+          <SectionHeader kicker="FAQ" title="Questions before you reserve a founder spot." />
           <div className="mt-12 divide-y divide-white/10 rounded-3xl border border-white/10 bg-ink">
             {faqs.map((faq) => (
               <details key={faq.question} className="group p-6">
@@ -544,13 +574,13 @@ function App() {
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(98,232,255,0.14),rgba(139,111,255,0.13)_45%,rgba(255,255,255,0.05))] p-8 text-center shadow-violet sm:p-14">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan">Final CTA</p>
           <h2 className="mx-auto mt-4 max-w-4xl text-3xl font-semibold tracking-tight text-white sm:text-5xl">
-            Get on the list before the Founder 100 closes.
+            Reserve your Founder100 spot before the first collection opens.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-200">
             Be first in line for premium monthly AI culture apparel, exclusive collection drops,
             and the earliest member benefits.
           </p>
-          <CTA className="mt-8">Open Waitlist Form</CTA>
+          <CTA className="mt-8">Reserve Founder Spot</CTA>
         </div>
       </section>
 
@@ -575,10 +605,10 @@ function App() {
       <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-night/90 px-4 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">Founder 100 is open</p>
-            <p className="truncate text-xs text-slate-400">31 spots left at $49/month</p>
+            <p className="truncate text-sm font-semibold text-white">1 of 100 Founder Spots Claimed</p>
+            <p className="truncate text-xs text-slate-400">Limited founder access is open</p>
           </div>
-          <CTA className="min-h-11 shrink-0 px-4 sm:px-6">Join Founder 100</CTA>
+          <CTA className="min-h-11 shrink-0 px-4 sm:px-6">Reserve Founder Spot</CTA>
         </div>
       </div>
     </main>
