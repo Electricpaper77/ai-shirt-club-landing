@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
   BadgeCheck,
+  BarChart3,
   CalendarDays,
   ChevronDown,
   ClipboardCheck,
@@ -16,6 +17,7 @@ import {
   Truck,
   Users,
   WalletCards,
+  XCircle,
 } from "lucide-react";
 import "./styles.css";
 
@@ -49,6 +51,119 @@ const collections = [
   },
 ];
 
+const roadmapCollections = [
+  {
+    id: "jan",
+    month: "January",
+    name: "Token Black",
+    color: "#62e8ff",
+    front: "AI CLUB",
+    back: "TOKEN 01",
+    specs: ["240 GSM heavyweight cotton target", "Oversized technical chest mark", "Back neck collection index", "Black base with cyan signal ink"],
+  },
+  {
+    id: "feb",
+    month: "February",
+    name: "Gradient Descent",
+    color: "#8b6fff",
+    front: "GD",
+    back: "LOSS CURVE",
+    specs: ["Garment-dyed blank target", "Subtle violet graph print", "Sleeve micro-label concept", "Soft washed finish"],
+  },
+  {
+    id: "mar",
+    month: "March",
+    name: "Inference Club",
+    color: "#34d399",
+    front: "RUN",
+    back: "LOW LATENCY",
+    specs: ["Premium midweight tee target", "Front latency badge", "Back server trace graphic", "Cyan-green accent ink"],
+  },
+  {
+    id: "apr",
+    month: "April",
+    name: "Founder Stack",
+    color: "#eaf4ff",
+    front: "STACK",
+    back: "BUILD LOG",
+    specs: ["Structured heavyweight silhouette", "Monochrome stack diagram", "Founder vote edition marker", "Clean white-on-black print"],
+  },
+  {
+    id: "may",
+    month: "May",
+    name: "Model Merge",
+    color: "#f0abfc",
+    front: "MERGE",
+    back: "BRANCH // MAIN",
+    specs: ["Relaxed streetwear fit target", "Split-front merge symbol", "Back branch map", "Purple halftone overlay"],
+  },
+  {
+    id: "jun",
+    month: "June",
+    name: "Prompt Ops",
+    color: "#facc15",
+    front: "OPS",
+    back: "SYSTEM MSG",
+    specs: ["Soft combed cotton target", "Front command patch", "Back prompt block layout", "Warm yellow accent ink"],
+  },
+  {
+    id: "jul",
+    month: "July",
+    name: "Vector Search",
+    color: "#38bdf8",
+    front: "KNN",
+    back: "EMBEDDED",
+    specs: ["Breathable summer-weight target", "Vector grid front mark", "Back coordinate field", "Blue cyan dimensional print"],
+  },
+  {
+    id: "aug",
+    month: "August",
+    name: "Agent Mode",
+    color: "#a78bfa",
+    front: "AGENT",
+    back: "TOOL CALL",
+    specs: ["Premium black blank target", "Agent status chest mark", "Back tool-call receipt", "Violet utility typography"],
+  },
+  {
+    id: "sep",
+    month: "September",
+    name: "Eval Night",
+    color: "#fb7185",
+    front: "EVAL",
+    back: "PASS / FAIL",
+    specs: ["Garment-dyed black target", "Front scorecard lockup", "Back benchmark table", "Rose red accent ink"],
+  },
+  {
+    id: "oct",
+    month: "October",
+    name: "Synthetic Data",
+    color: "#2dd4bf",
+    front: "SYN",
+    back: "DATASET 10",
+    specs: ["Heavyweight washed tee target", "Synthetic texture front", "Back dataset stamp", "Teal data-noise detail"],
+  },
+  {
+    id: "nov",
+    month: "November",
+    name: "Open Weights",
+    color: "#c084fc",
+    front: "OPEN",
+    back: "WEIGHTS",
+    specs: ["Premium ringspun cotton target", "Front open-lock graphic", "Back weight plate symbol", "Purple-white collector label"],
+  },
+  {
+    id: "dec",
+    month: "December",
+    name: "Ship Week",
+    color: "#ffffff",
+    front: "SHIP",
+    back: "DEPLOYED",
+    specs: ["Holiday-weight black tee target", "Front deploy mark", "Back release checklist", "White ink with cyan trim"],
+  },
+];
+
+const voteStorageKey = "ai-shirt-club-roadmap-votes";
+
 const validationGoals = [
   {
     title: "Collect Emails",
@@ -70,6 +185,66 @@ const validationGoals = [
     copy: "Find out whether early members want founder status, voting, or simple access.",
     icon: Star,
   },
+];
+
+const validationQuestions = [
+  {
+    question: "Frequency preference",
+    prompt: "Would you rather buy one-time drops, quarterly collections, or a monthly membership?",
+    why: "Tests subscription risk and whether the buying cadence should be drop-based.",
+    icon: CalendarDays,
+  },
+  {
+    question: "Budget preference",
+    prompt: "What would you realistically pay for one premium AI Shirt Club release?",
+    why: "Tests willingness to pay before manufacturing or subscription promises.",
+    icon: WalletCards,
+  },
+  {
+    question: "Collection ranking",
+    prompt: "Rank Token Black, Gradient Descent, Inference Club, and Founder Stack.",
+    why: "Reveals which creative direction deserves the first production test.",
+    icon: Layers,
+  },
+  {
+    question: "Why would you subscribe?",
+    prompt: "Tell us what would make this worth joining repeatedly.",
+    why: "Identifies retention hooks: identity, quality, exclusivity, voting, or community.",
+    icon: Star,
+  },
+  {
+    question: "Why would you cancel?",
+    prompt: "Tell us what would make you stop buying or avoid subscribing.",
+    why: "Finds churn drivers before they become operational problems.",
+    icon: XCircle,
+  },
+];
+
+const dashboardMetrics = [
+  ["Email conversion rate", "Form submits / unique landing page visitors", "Primary demand signal"],
+  ["Qualified founder interest", "% who select founder access or early membership", "Founder collection signal"],
+  ["Willingness to pay", "% choosing $59+ and $75+", "Pricing power"],
+  ["Frequency preference", "Drop vs quarterly vs monthly split", "Subscription risk"],
+  ["Top collection score", "Weighted rank by collection theme", "First drop direction"],
+  ["Cancellation themes", "Top coded reasons from free-text answers", "Retention risk"],
+];
+
+const goNoGoThresholds = [
+  ["Go", "100+ email responses, 35%+ choose $59+, 25%+ choose founder access, one collection wins by 15+ points."],
+  ["Narrow test", "50-99 responses or mixed pricing signal. Run a one-time preorder, not subscription."],
+  ["No-Go", "Under 50 responses, under 20% at $59+, no clear collection winner, or cancellation reasons cluster around price/frequency."],
+];
+
+const breakEvenAssumptions = [
+  ["One-time founder drop", "$75 price, $27-31 variable cost, $2,000 fixed creative/sample budget, break-even around 45 units."],
+  ["Premium one-time drop", "$59 price, $25-29 variable cost, $1,500 fixed budget, break-even around 50 units."],
+  ["Subscription", "$49 monthly, $20-28 contribution depending on supplier, break-even requires 75+ active subscribers plus low CAC."],
+];
+
+const retentionAssumptions = [
+  ["One-time drops", "Expect 30-45% of buyers to express interest in the next drop."],
+  ["Quarterly membership", "Expect 8-12% monthly-equivalent churn if collection quality is strong."],
+  ["Monthly subscription", "Expect 15-25% monthly churn until retention hooks are proven."],
 ];
 
 const founderBenefits = [
@@ -113,7 +288,7 @@ const faqs = [
   },
 ];
 
-function CTA({ children = "Reserve Founder Spot", variant = "primary", className = "" }) {
+function CTA({ children = "Answer Validation Survey", variant = "primary", className = "" }) {
   const base =
     "inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition duration-300 focus:outline-none focus:ring-2 focus:ring-cyan/70 focus:ring-offset-2 focus:ring-offset-night";
   const styles =
@@ -190,6 +365,211 @@ function MiniShirt({ item }) {
   );
 }
 
+function loadRoadmapVotes() {
+  const emptyVotes = roadmapCollections.reduce((acc, item) => {
+    acc[item.id] = { wear: 0, buy: 0 };
+    return acc;
+  }, {});
+
+  if (typeof window === "undefined") {
+    return emptyVotes;
+  }
+
+  try {
+    const savedVotes = JSON.parse(window.localStorage.getItem(voteStorageKey) || "{}");
+    return roadmapCollections.reduce((acc, item) => {
+      acc[item.id] = {
+        wear: Number(savedVotes[item.id]?.wear || 0),
+        buy: Number(savedVotes[item.id]?.buy || 0),
+      };
+      return acc;
+    }, {});
+  } catch {
+    return emptyVotes;
+  }
+}
+
+function RoadmapMockup({ item }) {
+  return (
+    <div className="roadmap-mockups" style={{ "--accent": item.color }}>
+      <div className="roadmap-shirt front">
+        <span>Front</span>
+        <strong>{item.front}</strong>
+      </div>
+      <div className="roadmap-shirt back">
+        <span>Back</span>
+        <strong>{item.back}</strong>
+      </div>
+    </div>
+  );
+}
+
+function CollectionRoadmap() {
+  const [activeId, setActiveId] = useState(roadmapCollections[0].id);
+  const [votes, setVotes] = useState(loadRoadmapVotes);
+
+  const activeCollection = roadmapCollections.find((item) => item.id === activeId);
+  const leaderboard = useMemo(
+    () =>
+      [...roadmapCollections].sort((a, b) => {
+        const bScore = (votes[b.id]?.wear || 0) + (votes[b.id]?.buy || 0) * 2;
+        const aScore = (votes[a.id]?.wear || 0) + (votes[a.id]?.buy || 0) * 2;
+        return bScore - aScore;
+      }),
+    [votes],
+  );
+  const topCollection = leaderboard[0];
+
+  function handleVote(collectionId, voteType) {
+    setActiveId(collectionId);
+    setVotes((currentVotes) => {
+      const nextVotes = {
+        ...currentVotes,
+        [collectionId]: {
+          wear: Number(currentVotes[collectionId]?.wear || 0),
+          buy: Number(currentVotes[collectionId]?.buy || 0),
+          [voteType]: Number(currentVotes[collectionId]?.[voteType] || 0) + 1,
+        },
+      };
+      window.localStorage.setItem(voteStorageKey, JSON.stringify(nextVotes));
+      return nextVotes;
+    });
+  }
+
+  return (
+    <section className="border-y border-white/10 bg-white/[0.025] py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/10 px-4 py-2 text-sm font-semibold text-cyan">
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              Help Decide What Ships First
+            </div>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+              2027 Collection Roadmap
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-slate-300">
+              Vote on concept collections before production exists. Demo votes stay in this
+              browser so the page can show what a live validation loop could feel like.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-ink p-5 lg:min-w-80">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+              Most Requested Collection
+            </p>
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-2xl font-semibold text-white">{topCollection.name}</p>
+                <p className="mt-1 text-sm text-slate-400">{topCollection.month}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-semibold text-white">
+                  {(votes[topCollection.id]?.wear || 0) + (votes[topCollection.id]?.buy || 0) * 2}
+                </p>
+                <p className="text-xs uppercase tracking-[0.16em] text-slate-500">score</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 overflow-x-auto pb-5">
+          <div className="flex min-w-max gap-4">
+            {roadmapCollections.map((item) => {
+              const isActive = item.id === activeId;
+              return (
+                <article
+                  key={item.id}
+                  className={`w-80 shrink-0 cursor-pointer rounded-3xl border p-4 transition duration-300 ${
+                    isActive
+                      ? "border-cyan/60 bg-cyan/[0.08] shadow-glow"
+                      : "border-white/10 bg-ink hover:border-cyan/35"
+                  }`}
+                  onClick={() => setActiveId(item.id)}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                        {item.month}
+                      </p>
+                      <h3 className="mt-1 text-xl font-semibold text-white">{item.name}</h3>
+                    </div>
+                    <span
+                      className="h-6 w-6 rounded-full border border-white/20"
+                      style={{ backgroundColor: item.color }}
+                      aria-label={`${item.name} color swatch`}
+                    />
+                  </div>
+                  <RoadmapMockup item={item} />
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-white transition hover:border-cyan/50 hover:bg-cyan/10"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleVote(item.id, "wear");
+                      }}
+                    >
+                      Would Wear {votes[item.id]?.wear || 0}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full bg-cyan px-3 py-2 text-sm font-semibold text-night transition hover:bg-white"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleVote(item.id, "buy");
+                      }}
+                    >
+                      Would Buy {votes[item.id]?.buy || 0}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+              Expanded Technical Specs
+            </p>
+            <h3 className="mt-3 text-3xl font-semibold text-white">{activeCollection.name}</h3>
+            <p className="mt-2 text-slate-400">{activeCollection.month} concept direction</p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {activeCollection.specs.map((spec) => (
+                <div key={spec} className="flex gap-3 rounded-2xl bg-white/[0.04] p-4">
+                  <BadgeCheck className="mt-0.5 h-5 w-5 flex-none text-cyan" aria-hidden="true" />
+                  <p className="text-sm leading-6 text-slate-300">{spec}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+              Collection Leaderboard
+            </p>
+            <div className="mt-5 grid gap-3">
+              {leaderboard.slice(0, 5).map((item, index) => (
+                <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.04] p-4">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {index + 1}. {item.name}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">{item.month}</p>
+                  </div>
+                  <p className="text-sm font-semibold text-cyan">
+                    W {votes[item.id]?.wear || 0} / B {votes[item.id]?.buy || 0}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionHeader({ kicker, title, children }) {
   return (
     <div className="mx-auto max-w-3xl text-center">
@@ -247,6 +627,119 @@ function ValidationOffer() {
                     <p className="text-sm font-semibold text-white">{title}</p>
                     <p className="mt-1 text-sm leading-6 text-slate-400">{copy}</p>
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ValidationQuestions() {
+  return (
+    <section className="border-y border-white/10 bg-white/[0.025] py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHeader kicker="Validation Questions" title="Five answers matter more than a waitlist number.">
+          The Google Form should capture these questions so each response teaches something
+          about cadence, price, creative direction, retention, and churn.
+        </SectionHeader>
+        <div className="mt-12 grid gap-4 lg:grid-cols-5">
+          {validationQuestions.map(({ question, prompt, why, icon: Icon }) => (
+            <article key={question} className="rounded-3xl border border-white/10 bg-ink p-5">
+              <Icon className="h-6 w-6 text-cyan" aria-hidden="true" />
+              <h3 className="mt-5 text-xl font-semibold text-white">{question}</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-300">{prompt}</p>
+              <p className="mt-5 border-t border-white/10 pt-4 text-xs uppercase leading-5 tracking-[0.14em] text-slate-500">
+                {why}
+              </p>
+            </article>
+          ))}
+        </div>
+        <div className="mt-10 text-center">
+          <CTA>Answer The 5 Questions</CTA>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DashboardRecommendations() {
+  return (
+    <section className="py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHeader kicker="Google Sheets Dashboard" title="Run the company from response quality, not vanity signups.">
+          Connect the Google Form to Google Sheets, add a coded-analysis tab, and review the
+          dashboard weekly before changing product, pricing, or cadence.
+        </SectionHeader>
+        <div className="mt-12 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <div className="flex items-center gap-3">
+              <BarChart3 className="h-6 w-6 text-cyan" aria-hidden="true" />
+              <h3 className="text-2xl font-semibold text-white">Most Important Metrics</h3>
+            </div>
+            <div className="mt-6 grid gap-3">
+              {dashboardMetrics.map(([metric, formula, reason]) => (
+                <div key={metric} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <p className="font-semibold text-white">{metric}</p>
+                  <p className="mt-2 text-sm text-slate-400">{formula}</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.16em] text-cyan">{reason}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-5">
+            <div className="rounded-3xl border border-white/10 bg-ink p-6">
+              <h3 className="text-2xl font-semibold text-white">Go / No-Go Thresholds</h3>
+              <div className="mt-5 grid gap-3">
+                {goNoGoThresholds.map(([status, rule]) => (
+                  <div key={status} className="rounded-2xl bg-white/[0.04] p-4">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan">{status}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{rule}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-ink p-6">
+              <h3 className="text-2xl font-semibold text-white">Sheet Setup</h3>
+              <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">
+                <li>Responses tab: raw Google Form answers.</li>
+                <li>Coding tab: normalize budget, frequency, collection rank, subscribe reason, cancel reason.</li>
+                <li>Dashboard tab: pivot tables, charts, and decision thresholds.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AssumptionsSection() {
+  return (
+    <section className="border-y border-white/10 bg-white/[0.025] py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHeader kicker="Operating Assumptions" title="The numbers to beat before launch." />
+        <div className="mt-12 grid gap-5 lg:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <h3 className="text-2xl font-semibold text-white">Break-Even Assumptions</h3>
+            <div className="mt-6 grid gap-3">
+              {breakEvenAssumptions.map(([model, assumption]) => (
+                <div key={model} className="rounded-2xl bg-white/[0.04] p-4">
+                  <p className="font-semibold text-white">{model}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{assumption}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <h3 className="text-2xl font-semibold text-white">Retention Assumptions</h3>
+            <div className="mt-6 grid gap-3">
+              {retentionAssumptions.map(([model, assumption]) => (
+                <div key={model} className="rounded-2xl bg-white/[0.04] p-4">
+                  <p className="font-semibold text-white">{model}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{assumption}</p>
                 </div>
               ))}
             </div>
@@ -328,8 +821,10 @@ function App() {
       </section>
 
       <ValidationOffer />
+      <ValidationQuestions />
+      <CollectionRoadmap />
 
-      <section className="border-y border-white/10 bg-white/[0.025] py-20">
+      <section className="py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <SectionHeader kicker="Collection Interest" title="Which collection would you actually want?">
             The first signal we need is not applause. It is which designs, themes, and drop cadence
@@ -358,6 +853,8 @@ function App() {
         </div>
       </section>
 
+      <DashboardRecommendations />
+
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <SectionHeader kicker="Mockup Gallery" title="Enough fidelity to judge. Not a sales promise.">
@@ -371,6 +868,8 @@ function App() {
           </div>
         </div>
       </section>
+
+      <AssumptionsSection />
 
       <section className="bg-gradient-to-b from-white/[0.04] to-transparent py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -453,7 +952,7 @@ function App() {
             Reserve interest, pick collection directions, share willingness to pay, and tell us
             whether founder access matters to you.
           </p>
-          <CTA className="mt-8" />
+          <CTA className="mt-8">Answer Validation Survey</CTA>
         </div>
       </section>
 
@@ -481,7 +980,7 @@ function App() {
             <p className="truncate text-sm font-semibold text-white">Help validate AI Shirt Club</p>
             <p className="truncate text-xs text-slate-400">Email, WTP, collection interest, founder interest</p>
           </div>
-          <CTA className="min-h-11 shrink-0 px-4 sm:px-6" />
+          <CTA className="min-h-11 shrink-0 px-4 sm:px-6">Answer Survey</CTA>
         </div>
       </div>
     </main>
