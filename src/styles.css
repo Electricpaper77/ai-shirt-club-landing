@@ -119,6 +119,103 @@ body {
   font-size: 15px;
 }
 
+.mini-shirt {
+  position: relative;
+  display: grid;
+  min-height: 300px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 28px 28px 36px 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at 50% 24%, rgba(98, 232, 255, 0.18), transparent 24%),
+    linear-gradient(145deg, #111827 0%, #060913 60%, #020308 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 22px 70px rgba(0, 0, 0, 0.35);
+}
+
+.mini-shirt::before,
+.mini-shirt::after {
+  content: "";
+  position: absolute;
+  top: 74px;
+  height: 128px;
+  width: 72px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mini-shirt::before {
+  left: -34px;
+  transform: rotate(14deg);
+  border-radius: 22px 12px 26px 20px;
+}
+
+.mini-shirt::after {
+  right: -34px;
+  transform: rotate(-14deg);
+  border-radius: 12px 22px 20px 26px;
+}
+
+.mini-shirt.violet {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(139, 111, 255, 0.2), transparent 24%),
+    linear-gradient(145deg, #171226 0%, #070913 62%, #020308 100%);
+}
+
+.mini-shirt.emerald {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(52, 211, 153, 0.16), transparent 24%),
+    linear-gradient(145deg, #0d1b1e 0%, #060913 62%, #020308 100%);
+}
+
+.mini-shirt-neck {
+  position: absolute;
+  left: 50%;
+  top: -28px;
+  width: 96px;
+  height: 78px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #05070d;
+}
+
+.mini-shirt-mark {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: min(74%, 220px);
+  gap: 10px;
+  place-items: center;
+  border-radius: 24px;
+  border: 1px solid rgba(98, 232, 255, 0.35);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    rgba(0, 0, 0, 0.18);
+  background-size: 18px 18px, 18px 18px, auto;
+  padding: 44px 18px;
+  text-align: center;
+}
+
+.mini-shirt-mark span {
+  color: #62e8ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.mini-shirt-mark strong {
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .shirt-card {
     min-height: 380px;
@@ -131,5 +228,9 @@ body {
 
   .shirt-mark span:first-child {
     font-size: 46px;
+  }
+
+  .mini-shirt {
+    min-height: 260px;
   }
 }

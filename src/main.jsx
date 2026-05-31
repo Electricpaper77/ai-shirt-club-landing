@@ -4,14 +4,21 @@ import {
   ArrowRight,
   BadgeCheck,
   CalendarDays,
+  ChevronDown,
   Crown,
   Gem,
+  HelpCircle,
+  Layers,
   Lock,
   PackageCheck,
+  Quote,
+  ShieldCheck,
   Sparkles,
   Star,
   Timer,
   Trophy,
+  Truck,
+  Users,
   Zap,
 } from "lucide-react";
 import "./styles.css";
@@ -46,6 +53,35 @@ const collections = [
   },
 ];
 
+const socialProof = [
+  "AI engineers",
+  "Startup founders",
+  "ML platform teams",
+  "Indie builders",
+  "DevTool operators",
+];
+
+const gallery = [
+  {
+    name: "Token Black",
+    label: "Founder 01",
+    detail: "Heavyweight black base with luminous club mark.",
+    tone: "cyan",
+  },
+  {
+    name: "Gradient Descent",
+    label: "Training 02",
+    detail: "Subtle violet signal print for late build nights.",
+    tone: "violet",
+  },
+  {
+    name: "Inference Club",
+    label: "Latency 03",
+    detail: "Crisp cyan linework with premium collection trim.",
+    tone: "emerald",
+  },
+];
+
 const founderBenefits = [
   "Founder 100 member number",
   "Locked founding price",
@@ -77,6 +113,50 @@ const pricing = [
   },
 ];
 
+const testimonials = [
+  {
+    quote:
+      "Finally, founder merch that feels intentional enough to wear outside a conference hall.",
+    name: "AI founder",
+    role: "Founder 100 preview",
+  },
+  {
+    quote:
+      "The monthly collection idea makes it feel more like a club artifact than another startup tee.",
+    name: "ML engineer",
+    role: "Waitlist member",
+  },
+  {
+    quote:
+      "Clean, technical, limited. Exactly the kind of uniform I want for demo days and build weeks.",
+    name: "DevTools builder",
+    role: "Early supporter",
+  },
+];
+
+const faqs = [
+  {
+    question: "What happens after I join the waitlist?",
+    answer:
+      "You will be added to the launch list for Founder 100 access. When the first collection opens, invited members will receive the next steps by email.",
+  },
+  {
+    question: "Am I paying today?",
+    answer:
+      "No. The site only links to the Google Form waitlist. There is no checkout, account, payment processing, or subscription billing on this landing page.",
+  },
+  {
+    question: "What is included each month?",
+    answer:
+      "The membership is built around one premium shirt and one exclusive collection every month, with founder benefits for the first 100 members.",
+  },
+  {
+    question: "Who is AI Shirt Club for?",
+    answer:
+      "AI engineers, builders, founders, and tech professionals who want collectible apparel designed around AI culture rather than generic tech merch.",
+  },
+];
+
 function CTA({ children, variant = "primary", className = "" }) {
   const base =
     "inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition duration-300 focus:outline-none focus:ring-2 focus:ring-cyan/70 focus:ring-offset-2 focus:ring-offset-night";
@@ -90,6 +170,32 @@ function CTA({ children, variant = "primary", className = "" }) {
       {children}
       <ArrowRight className="h-4 w-4" aria-hidden="true" />
     </a>
+  );
+}
+
+function ScarcityCounter({ compact = false }) {
+  return (
+    <div
+      className={`rounded-3xl border border-cyan/25 bg-cyan/[0.07] ${
+        compact ? "p-4" : "p-5"
+      } shadow-glow`}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+            Founder 100 Counter
+          </p>
+          <p className="mt-2 text-sm text-slate-300">31 founding spots remaining</p>
+        </div>
+        <div className="text-right">
+          <p className="text-3xl font-semibold text-white">69/100</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">reserved</p>
+        </div>
+      </div>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full w-[69%] rounded-full bg-gradient-to-r from-cyan to-violet" />
+      </div>
+    </div>
   );
 }
 
@@ -141,6 +247,22 @@ function ProductMockup() {
   );
 }
 
+function MiniShirt({ item }) {
+  return (
+    <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 transition duration-300 hover:-translate-y-1 hover:border-cyan/40">
+      <div className={`mini-shirt ${item.tone}`}>
+        <div className="mini-shirt-neck" />
+        <div className="mini-shirt-mark">
+          <span>{item.label}</span>
+          <strong>{item.name}</strong>
+        </div>
+      </div>
+      <h3 className="mt-5 text-xl font-semibold text-white">{item.name}</h3>
+      <p className="mt-2 text-sm leading-6 text-slate-400">{item.detail}</p>
+    </article>
+  );
+}
+
 function SectionHeader({ kicker, title, children }) {
   return (
     <div className="mx-auto max-w-3xl text-center">
@@ -155,7 +277,7 @@ function SectionHeader({ kicker, title, children }) {
 
 function App() {
   return (
-    <main className="min-h-screen overflow-hidden bg-night text-white">
+    <main className="min-h-screen overflow-hidden bg-night pb-24 text-white sm:pb-20">
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(98,232,255,0.18),transparent_32%),radial-gradient(circle_at_78%_20%,rgba(139,111,255,0.16),transparent_30%),linear-gradient(180deg,#05070d_0%,#090d18_46%,#05070d_100%)]" />
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
         <a href="#top" className="flex items-center gap-3">
@@ -166,14 +288,14 @@ function App() {
             Shirt Club
           </span>
         </a>
-        <CTA className="hidden sm:inline-flex">Join Waitlist</CTA>
+        <CTA className="hidden sm:inline-flex">Join Founder 100</CTA>
       </nav>
 
-      <section id="top" className="mx-auto grid min-h-[calc(100vh-80px)] max-w-7xl items-center gap-12 px-5 pb-20 pt-8 sm:px-8 lg:grid-cols-[0.95fr_1.05fr]">
+      <section id="top" className="mx-auto grid min-h-[calc(100vh-80px)] max-w-7xl items-center gap-12 px-5 pb-16 pt-8 sm:px-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-slate-200">
             <Sparkles className="h-4 w-4 text-cyan" aria-hidden="true" />
-            Founder 100 waitlist now open
+            Founder 100 applications now open
           </div>
           <h1 className="mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
             AI Shirt Club
@@ -186,14 +308,17 @@ function App() {
             and tech professionals who want their uniform to feel as intentional as their work.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <CTA>Claim Founder Access</CTA>
-            <CTA variant="secondary">View Monthly Drops</CTA>
+            <CTA>Join Founder 100</CTA>
+            <CTA variant="secondary">Preview Collections</CTA>
           </div>
-          <div className="mt-10 grid max-w-2xl grid-cols-3 gap-3">
+          <div className="mt-8 max-w-2xl">
+            <ScarcityCounter />
+          </div>
+          <div className="mt-5 grid max-w-2xl grid-cols-3 gap-3">
             {[
-              ["100", "Founder spots"],
+              ["31", "Spots left"],
               ["12", "Annual drops"],
-              ["0", "Generic merch"],
+              ["$49", "Founder rate"],
             ].map(([metric, label]) => (
               <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-2xl font-semibold text-white">{metric}</p>
@@ -203,6 +328,27 @@ function App() {
           </div>
         </div>
         <ProductMockup />
+      </section>
+
+      <section className="border-y border-white/10 bg-white/[0.025] py-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3">
+            <Users className="h-5 w-5 text-cyan" aria-hidden="true" />
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+              Built for people shipping AI products
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {socialProof.map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="border-y border-white/10 bg-white/[0.025] py-20">
@@ -226,6 +372,20 @@ function App() {
                 </div>
                 <p className="mt-4 text-sm leading-6 text-slate-400">{item.theme}</p>
               </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <SectionHeader kicker="Premium Mockup Gallery" title="A collectible shirt system, not generic merch.">
+            Every drop is designed as a premium object: restrained graphics, technical marks,
+            and collection details that reward early members.
+          </SectionHeader>
+          <div className="mt-12 grid gap-5 lg:grid-cols-3">
+            {gallery.map((item) => (
+              <MiniShirt key={item.name} item={item} />
             ))}
           </div>
         </div>
@@ -271,6 +431,9 @@ function App() {
                 locked pricing, and early influence on the drops that follow.
               </p>
               <CTA className="mt-8">Join Founder 100</CTA>
+              <div className="mt-6">
+                <ScarcityCounter compact />
+              </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {founderBenefits.map((benefit, index) => {
@@ -284,6 +447,30 @@ function App() {
                 );
               })}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <SectionHeader kicker="Early Member Signals" title="The club already sounds like its people.">
+            Placeholder testimonials for launch messaging, written for the builders the membership
+            is designed to attract.
+          </SectionHeader>
+          <div className="mt-12 grid gap-5 lg:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <article
+                key={testimonial.name}
+                className="rounded-3xl border border-white/10 bg-ink p-6"
+              >
+                <Quote className="h-6 w-6 text-cyan" aria-hidden="true" />
+                <p className="mt-6 text-lg leading-8 text-slate-200">"{testimonial.quote}"</p>
+                <div className="mt-8 border-t border-white/10 pt-5">
+                  <p className="font-semibold text-white">{testimonial.name}</p>
+                  <p className="mt-1 text-sm text-slate-400">{testimonial.role}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -333,6 +520,26 @@ function App() {
         </div>
       </section>
 
+      <section className="bg-white/[0.025] py-24">
+        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+          <SectionHeader kicker="FAQ" title="Questions before you join the list." />
+          <div className="mt-12 divide-y divide-white/10 rounded-3xl border border-white/10 bg-ink">
+            {faqs.map((faq) => (
+              <details key={faq.question} className="group p-6">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-left">
+                  <span className="flex items-center gap-3 text-lg font-semibold text-white">
+                    <HelpCircle className="h-5 w-5 flex-none text-cyan" aria-hidden="true" />
+                    {faq.question}
+                  </span>
+                  <ChevronDown className="h-5 w-5 flex-none text-slate-500 transition group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <p className="mt-5 leading-8 text-slate-400">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="px-5 pb-8 sm:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(98,232,255,0.14),rgba(139,111,255,0.13)_45%,rgba(255,255,255,0.05))] p-8 text-center shadow-violet sm:p-14">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan">Final CTA</p>
@@ -347,10 +554,33 @@ function App() {
         </div>
       </section>
 
+      <section className="mx-auto grid max-w-7xl gap-4 px-5 py-8 sm:grid-cols-3 sm:px-8">
+        {[
+          ["No payment today", ShieldCheck],
+          ["Premium monthly drop", Layers],
+          ["Founder priority window", Truck],
+        ].map(([label, Icon]) => (
+          <div key={label} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <Icon className="h-5 w-5 text-cyan" aria-hidden="true" />
+            <p className="text-sm font-semibold text-slate-200">{label}</p>
+          </div>
+        ))}
+      </section>
+
       <footer className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-10 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <p>AI Shirt Club</p>
         <p>Premium collectible apparel for AI builders.</p>
       </footer>
+
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-night/90 px-4 py-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white">Founder 100 is open</p>
+            <p className="truncate text-xs text-slate-400">31 spots left at $49/month</p>
+          </div>
+          <CTA className="min-h-11 shrink-0 px-4 sm:px-6">Join Founder 100</CTA>
+        </div>
+      </div>
     </main>
   );
 }
