@@ -56,113 +56,133 @@ const roadmapCollections = [
     id: "jan",
     month: "January",
     name: "Token Black",
+    category: "Founder",
     color: "#62e8ff",
     front: "AI CLUB",
     back: "TOKEN 01",
-    specs: ["240 GSM heavyweight cotton target", "Oversized technical chest mark", "Back neck collection index", "Black base with cyan signal ink"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Black base with cyan signal ink"],
   },
   {
     id: "feb",
     month: "February",
     name: "Gradient Descent",
+    category: "AI Infrastructure",
     color: "#8b6fff",
     front: "GD",
     back: "LOSS CURVE",
-    specs: ["Garment-dyed blank target", "Subtle violet graph print", "Sleeve micro-label concept", "Soft washed finish"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Subtle violet graph print"],
   },
   {
     id: "mar",
     month: "March",
     name: "Inference Club",
+    category: "AI Infrastructure",
     color: "#34d399",
     front: "RUN",
     back: "LOW LATENCY",
-    specs: ["Premium midweight tee target", "Front latency badge", "Back server trace graphic", "Cyan-green accent ink"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back server trace graphic"],
   },
   {
     id: "apr",
     month: "April",
     name: "Founder Stack",
+    category: "Founder",
     color: "#eaf4ff",
     front: "STACK",
     back: "BUILD LOG",
-    specs: ["Structured heavyweight silhouette", "Monochrome stack diagram", "Founder vote edition marker", "Clean white-on-black print"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Founder vote edition marker"],
   },
   {
     id: "may",
     month: "May",
     name: "Model Merge",
+    category: "AI Infrastructure",
     color: "#f0abfc",
     front: "MERGE",
     back: "BRANCH // MAIN",
-    specs: ["Relaxed streetwear fit target", "Split-front merge symbol", "Back branch map", "Purple halftone overlay"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back branch map"],
   },
   {
     id: "jun",
     month: "June",
     name: "Prompt Ops",
+    category: "Agents",
     color: "#facc15",
     front: "OPS",
     back: "SYSTEM MSG",
-    specs: ["Soft combed cotton target", "Front command patch", "Back prompt block layout", "Warm yellow accent ink"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back prompt block layout"],
   },
   {
     id: "jul",
     month: "July",
     name: "Vector Search",
+    category: "AI Infrastructure",
     color: "#38bdf8",
     front: "KNN",
     back: "EMBEDDED",
-    specs: ["Breathable summer-weight target", "Vector grid front mark", "Back coordinate field", "Blue cyan dimensional print"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back coordinate field"],
   },
   {
     id: "aug",
     month: "August",
     name: "Agent Mode",
+    category: "Agents",
     color: "#a78bfa",
     front: "AGENT",
     back: "TOOL CALL",
-    specs: ["Premium black blank target", "Agent status chest mark", "Back tool-call receipt", "Violet utility typography"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back tool-call receipt"],
   },
   {
     id: "sep",
     month: "September",
     name: "Eval Night",
+    category: "Cyber",
     color: "#fb7185",
     front: "EVAL",
     back: "PASS / FAIL",
-    specs: ["Garment-dyed black target", "Front scorecard lockup", "Back benchmark table", "Rose red accent ink"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back benchmark table"],
   },
   {
     id: "oct",
     month: "October",
     name: "Synthetic Data",
+    category: "AI Infrastructure",
     color: "#2dd4bf",
     front: "SYN",
     back: "DATASET 10",
-    specs: ["Heavyweight washed tee target", "Synthetic texture front", "Back dataset stamp", "Teal data-noise detail"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back dataset stamp"],
   },
   {
     id: "nov",
     month: "November",
     name: "Open Weights",
+    category: "Founder",
     color: "#c084fc",
     front: "OPEN",
     back: "WEIGHTS",
-    specs: ["Premium ringspun cotton target", "Front open-lock graphic", "Back weight plate symbol", "Purple-white collector label"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Purple-white collector label"],
   },
   {
     id: "dec",
     month: "December",
     name: "Ship Week",
+    category: "Cyber",
     color: "#ffffff",
     front: "SHIP",
     back: "DEPLOYED",
-    specs: ["Holiday-weight black tee target", "Front deploy mark", "Back release checklist", "White ink with cyan trim"],
+    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back release checklist"],
   },
 ];
 
 const voteStorageKey = "ai-shirt-club-roadmap-votes";
+const collectionFilters = ["All", "AI Infrastructure", "Agents", "Cyber", "Founder"];
+
+const apparelSpecs = [
+  "260 GSM heavyweight cotton",
+  "Oversized fit",
+  "Premium screen print",
+  "Limited release numbering",
+];
 
 const validationGoals = [
   {
@@ -406,9 +426,14 @@ function RoadmapMockup({ item }) {
 
 function CollectionRoadmap() {
   const [activeId, setActiveId] = useState(roadmapCollections[0].id);
+  const [activeFilter, setActiveFilter] = useState("All");
   const [votes, setVotes] = useState(loadRoadmapVotes);
 
   const activeCollection = roadmapCollections.find((item) => item.id === activeId);
+  const filteredCollections =
+    activeFilter === "All"
+      ? roadmapCollections
+      : roadmapCollections.filter((item) => item.category === activeFilter);
   const leaderboard = useMemo(
     () =>
       [...roadmapCollections].sort((a, b) => {
@@ -419,6 +444,18 @@ function CollectionRoadmap() {
     [votes],
   );
   const topCollection = leaderboard[0];
+  const totalWearVotes = roadmapCollections.reduce((sum, item) => sum + (votes[item.id]?.wear || 0), 0);
+  const totalBuyVotes = roadmapCollections.reduce((sum, item) => sum + (votes[item.id]?.buy || 0), 0);
+  const mostWantedScore = (votes[topCollection.id]?.wear || 0) + (votes[topCollection.id]?.buy || 0) * 2;
+  const categoryScores = collectionFilters
+    .filter((filter) => filter !== "All")
+    .map((category) => ({
+      category,
+      score: roadmapCollections
+        .filter((item) => item.category === category)
+        .reduce((sum, item) => sum + (votes[item.id]?.wear || 0) + (votes[item.id]?.buy || 0) * 2, 0),
+    }))
+    .sort((a, b) => b.score - a.score);
 
   function handleVote(collectionId, voteType) {
     setActiveId(collectionId);
@@ -455,7 +492,7 @@ function CollectionRoadmap() {
           </div>
           <div className="rounded-3xl border border-white/10 bg-ink p-5 lg:min-w-80">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
-              Most Requested Collection
+              Most Wanted Collection
             </p>
             <div className="mt-4 flex items-center justify-between gap-4">
               <div>
@@ -472,9 +509,35 @@ function CollectionRoadmap() {
           </div>
         </div>
 
+        <div className="mt-8 flex flex-wrap gap-3">
+          {collectionFilters.map((filter) => (
+            <button
+              key={filter}
+              type="button"
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                activeFilter === filter
+                  ? "border-cyan bg-cyan text-night"
+                  : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-cyan/50 hover:text-white"
+              }`}
+              onClick={() => {
+                setActiveFilter(filter);
+                const nextCollection =
+                  filter === "All"
+                    ? roadmapCollections[0]
+                    : roadmapCollections.find((item) => item.category === filter);
+                if (nextCollection) {
+                  setActiveId(nextCollection.id);
+                }
+              }}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-12 overflow-x-auto pb-5">
           <div className="flex min-w-max gap-4">
-            {roadmapCollections.map((item) => {
+            {filteredCollections.map((item) => {
               const isActive = item.id === activeId;
               return (
                 <article
@@ -492,6 +555,9 @@ function CollectionRoadmap() {
                         {item.month}
                       </p>
                       <h3 className="mt-1 text-xl font-semibold text-white">{item.name}</h3>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan">
+                        {item.category}
+                      </p>
                     </div>
                     <span
                       className="h-6 w-6 rounded-full border border-white/20"
@@ -535,6 +601,9 @@ function CollectionRoadmap() {
             </p>
             <h3 className="mt-3 text-3xl font-semibold text-white">{activeCollection.name}</h3>
             <p className="mt-2 text-slate-400">{activeCollection.month} concept direction</p>
+            <p className="mt-2 text-sm font-semibold uppercase tracking-[0.18em] text-cyan">
+              {activeCollection.category}
+            </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {activeCollection.specs.map((spec) => (
                 <div key={spec} className="flex gap-3 rounded-2xl bg-white/[0.04] p-4">
@@ -564,6 +633,89 @@ function CollectionRoadmap() {
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+              Collection Vote Analytics
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {[
+                ["Would Wear", totalWearVotes],
+                ["Would Buy", totalBuyVotes],
+                ["Most Wanted Score", mostWantedScore],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-2xl bg-white/[0.04] p-4">
+                  <p className="text-3xl font-semibold text-white">{value}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">{label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 text-sm leading-6 text-slate-400">
+              Top category: <span className="font-semibold text-white">{categoryScores[0]?.category}</span>
+              {" "}with {categoryScores[0]?.score || 0} weighted points.
+            </p>
+          </div>
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-ink">
+            <div className="border-b border-white/10 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+                Collection Comparison Table
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold text-white">Roadmap Concepts</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className="bg-white/[0.03] text-xs uppercase tracking-[0.16em] text-slate-500">
+                  <tr>
+                    <th className="px-5 py-4">Month</th>
+                    <th className="px-5 py-4">Collection</th>
+                    <th className="px-5 py-4">Category</th>
+                    <th className="px-5 py-4">Front</th>
+                    <th className="px-5 py-4">Back</th>
+                    <th className="px-5 py-4">Votes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10 text-slate-300">
+                  {roadmapCollections.map((item) => (
+                    <tr key={item.id} className="hover:bg-white/[0.03]">
+                      <td className="px-5 py-4">{item.month}</td>
+                      <td className="px-5 py-4 font-semibold text-white">{item.name}</td>
+                      <td className="px-5 py-4">{item.category}</td>
+                      <td className="px-5 py-4">{item.front}</td>
+                      <td className="px-5 py-4">{item.back}</td>
+                      <td className="px-5 py-4">
+                        W {votes[item.id]?.wear || 0} / B {votes[item.id]?.buy || 0}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ApparelSpecs() {
+  return (
+    <section className="py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHeader kicker="Premium Apparel Specs" title="The baseline every concept has to earn.">
+          These are target specs for the concept showcase. Final production still depends on
+          sample testing, supplier quality, and validation demand.
+        </SectionHeader>
+        <div className="mt-12 grid gap-5 md:grid-cols-4">
+          {apparelSpecs.map((spec) => (
+            <div key={spec} className="rounded-3xl border border-white/10 bg-ink p-6 text-center">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-cyan/30 bg-cyan/10">
+                <BadgeCheck className="h-6 w-6 text-cyan" aria-hidden="true" />
+              </div>
+              <p className="mt-5 text-lg font-semibold text-white">{spec}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -773,10 +925,10 @@ function App() {
             Validation page, not a checkout
           </div>
           <h1 className="mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Should AI Shirt Club exist?
+            AI Shirt Club Concept Showcase
           </h1>
           <p className="mt-6 max-w-2xl text-xl leading-9 text-slate-200 sm:text-2xl">
-            One premium AI-culture shirt. One collectible collection. Possibly every month.
+            Twelve premium AI-culture collections. One roadmap to validate what should ship first.
           </p>
           <p className="mt-5 max-w-2xl text-base leading-8 text-slate-400 sm:text-lg">
             We are validating whether AI engineers, builders, founders, and tech professionals
@@ -823,6 +975,7 @@ function App() {
       <ValidationOffer />
       <ValidationQuestions />
       <CollectionRoadmap />
+      <ApparelSpecs />
 
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
