@@ -1,12 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  AlertTriangle,
   ArrowRight,
   BadgeCheck,
   BarChart3,
   CalendarDays,
   ChevronDown,
+  CheckCircle2,
   ClipboardCheck,
+  FileJson,
   HelpCircle,
   Layers,
   Mail,
@@ -283,6 +286,79 @@ const validationRisks = [
   ["Pricing risk", "Premium shirts need enough margin after production, packaging, shipping, and returns. Measure real willingness to pay first."],
   ["Customer acquisition risk", "AI audiences are niche and expensive to reach. Validate organic founder demand before paid acquisition."],
   ["Retention risk", "The club needs identity and community, not just shirts. Test founder voting, collection reveals, and member status."],
+];
+
+const cyberReliabilityChecks = [
+  {
+    title: "Prompt Injection Defense",
+    copy: "Flags instructions that try to override system intent, policy, or trusted context before an agent acts.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "PII Redaction",
+    copy: "Detects sensitive personal data and routes responses through redact or escalate paths when needed.",
+    icon: Users,
+  },
+  {
+    title: "Unsafe Action Blocking",
+    copy: "Stops risky tool use, permission jumps, and irreversible actions until a safer decision is available.",
+    icon: XCircle,
+  },
+  {
+    title: "Citation Grounding",
+    copy: "Checks whether customer-facing answers cite the evidence they depend on instead of presenting guesses.",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Hallucination Risk Scoring",
+    copy: "Scores answer risk so reviewers can see where uncertainty, missing evidence, or unsupported claims remain.",
+    icon: AlertTriangle,
+  },
+  {
+    title: "JSONL Audit Replay",
+    copy: "Keeps replayable request, decision, and outcome records for debugging eval failures and judging regressions.",
+    icon: FileJson,
+  },
+];
+
+const cyberDecisionFlow = [
+  "User Request",
+  "Agent Response",
+  "Cyber Guardrails",
+  "Reliability Score",
+  "Allow / Block / Escalate",
+];
+
+const cyberReliabilityMetrics = [
+  ["145+", "passing tests"],
+  ["87%", "eval pass rate"],
+  ["18% to 6%", "hallucination risk reduction"],
+  ["p95", "eval latency tracked"],
+  ["JSONL", "audit logs generated"],
+];
+
+const cyberScenarioCards = [
+  {
+    title: "Prompt injection attempt",
+    outcome: "BLOCK",
+    copy: "The guardrail rejects hidden instructions that ask the agent to ignore trusted policy or reveal private context.",
+    icon: XCircle,
+    tone: "text-rose-300",
+  },
+  {
+    title: "PII leakage attempt",
+    outcome: "REDACT / ESCALATE",
+    copy: "Sensitive fields are removed from the draft answer, then routed for review when confidence is not high enough.",
+    icon: AlertTriangle,
+    tone: "text-amber-200",
+  },
+  {
+    title: "Grounded customer answer with citation",
+    outcome: "ALLOW",
+    copy: "The response is supported by cited source material and clears the reliability threshold for customer use.",
+    icon: CheckCircle2,
+    tone: "text-emerald-300",
+  },
 ];
 
 const faqs = [
@@ -734,6 +810,101 @@ function SectionHeader({ kicker, title, children }) {
   );
 }
 
+function AgenticCyberReliabilityLayer() {
+  return (
+    <section className="border-y border-white/10 bg-white/[0.025] py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHeader
+          kicker="Agentic Cyber Reliability Layer"
+          title="Guardrails, evals, and replayable evidence for agent behavior."
+        >
+          A recruiter-facing and judge-facing snapshot of how an AI workflow can be screened
+          before an answer is allowed, blocked, or escalated.
+        </SectionHeader>
+
+        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+          {cyberReliabilityChecks.map(({ title, copy, icon: Icon }) => (
+            <article key={title} className="rounded-3xl border border-white/10 bg-ink p-6">
+              <div className="flex items-center gap-3">
+                <div className="grid h-11 w-11 flex-none place-items-center rounded-2xl border border-cyan/30 bg-cyan/10">
+                  <Icon className="h-5 w-5 text-cyan" aria-hidden="true" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">{title}</h3>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-slate-400">{copy}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-12 rounded-3xl border border-white/10 bg-ink p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+                Visual Decision Flow
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold text-white">
+                From request to allow, block, or escalation.
+              </h3>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-slate-400">
+              The layer is presented as an eval pattern and audit trail, not a production
+              security certification.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-3 md:grid-cols-5">
+            {cyberDecisionFlow.map((step, index) => (
+              <div key={step} className="relative rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Step {index + 1}
+                </p>
+                <p className="mt-3 min-h-12 text-base font-semibold leading-6 text-white">{step}</p>
+                {index < cyberDecisionFlow.length - 1 && (
+                  <ArrowRight
+                    className="absolute -right-3 top-1/2 z-10 hidden h-6 w-6 -translate-y-1/2 rounded-full border border-cyan/30 bg-night p-1 text-cyan md:block"
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-12 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="rounded-3xl border border-white/10 bg-ink p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
+              Sample Metrics
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold text-white">Eval snapshot for review.</h3>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {cyberReliabilityMetrics.map(([value, label]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-3xl font-semibold text-white">{value}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {cyberScenarioCards.map(({ title, outcome, copy, icon: Icon, tone }) => (
+              <article key={title} className="rounded-3xl border border-white/10 bg-ink p-6">
+                <Icon className={`h-6 w-6 ${tone}`} aria-hidden="true" />
+                <h3 className="mt-5 text-xl font-semibold text-white">{title}</h3>
+                <p className={`mt-4 text-xs font-semibold uppercase tracking-[0.18em] ${tone}`}>
+                  {outcome}
+                </p>
+                <p className="mt-4 text-sm leading-6 text-slate-400">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ValidationOffer() {
   return (
     <section className="py-24">
@@ -972,6 +1143,7 @@ function App() {
         </div>
       </section>
 
+      <AgenticCyberReliabilityLayer />
       <ValidationOffer />
       <ValidationQuestions />
       <CollectionRoadmap />
