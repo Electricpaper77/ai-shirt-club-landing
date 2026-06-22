@@ -504,7 +504,7 @@ function ConceptPlaceholder({ item, viewKey, view }) {
 const conceptTrustLabels = [
   "AI concept preview — final production artwork may vary.",
   "No live inventory claims.",
-  "No checkout or payment is active.",
+  "No storefront ordering is active.",
   "Monthly concepts are roadmap previews for validation.",
 ];
 
