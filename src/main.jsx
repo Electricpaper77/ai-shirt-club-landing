@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   AlertTriangle,
@@ -22,10 +22,22 @@ import {
   WalletCards,
   XCircle,
 } from "lucide-react";
+import { concepts } from "./data/concepts";
 import "./styles.css";
 
-const formUrl =
+const VALIDATION_SURVEY_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScmqVes2tnVy8L6Gq-v6hnhBbYTPfEH2JX4l1dNoLO_hvmzOw/viewform";
+
+// Google Forms stores prefilled values through entry.xxxxx field IDs.
+// Plain query params are URL-only and may not appear in responses.
+// Google Forms entry IDs are placeholder values and must be replaced before production deployment.
+const GOOGLE_FORM_ENTRIES = {
+  month: "entry.PASTE_REAL_MONTH_ID",
+  collection: "entry.PASTE_REAL_COLLECTION_ID",
+  category: "entry.PASTE_REAL_CATEGORY_ID",
+  intent: "entry.PASTE_REAL_INTENT_ID",
+  source: "entry.PASTE_REAL_SOURCE_ID",
+};
 
 const collections = [
   {
@@ -54,131 +66,42 @@ const collections = [
   },
 ];
 
-const roadmapCollections = [
-  {
-    id: "jan",
-    month: "January",
-    name: "Token Black",
-    category: "Founder",
-    color: "#62e8ff",
-    front: "AI CLUB",
-    back: "TOKEN 01",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Black base with cyan signal ink"],
-  },
-  {
-    id: "feb",
-    month: "February",
-    name: "Gradient Descent",
-    category: "AI Infrastructure",
-    color: "#8b6fff",
-    front: "GD",
-    back: "LOSS CURVE",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Subtle violet graph print"],
-  },
-  {
-    id: "mar",
-    month: "March",
-    name: "Inference Club",
-    category: "AI Infrastructure",
-    color: "#34d399",
-    front: "RUN",
-    back: "LOW LATENCY",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back server trace graphic"],
-  },
-  {
-    id: "apr",
-    month: "April",
-    name: "Founder Stack",
-    category: "Founder",
-    color: "#eaf4ff",
-    front: "STACK",
-    back: "BUILD LOG",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Founder vote edition marker"],
-  },
-  {
-    id: "may",
-    month: "May",
-    name: "Model Merge",
-    category: "AI Infrastructure",
-    color: "#f0abfc",
-    front: "MERGE",
-    back: "BRANCH // MAIN",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back branch map"],
-  },
-  {
-    id: "jun",
-    month: "June",
-    name: "Prompt Ops",
-    category: "Agents",
-    color: "#facc15",
-    front: "OPS",
-    back: "SYSTEM MSG",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back prompt block layout"],
-  },
-  {
-    id: "jul",
-    month: "July",
-    name: "Vector Search",
-    category: "AI Infrastructure",
-    color: "#38bdf8",
-    front: "KNN",
-    back: "EMBEDDED",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back coordinate field"],
-  },
-  {
-    id: "aug",
-    month: "August",
-    name: "Agent Mode",
-    category: "Agents",
-    color: "#a78bfa",
-    front: "AGENT",
-    back: "TOOL CALL",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back tool-call receipt"],
-  },
-  {
-    id: "sep",
-    month: "September",
-    name: "Eval Night",
-    category: "Cyber",
-    color: "#fb7185",
-    front: "EVAL",
-    back: "PASS / FAIL",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back benchmark table"],
-  },
-  {
-    id: "oct",
-    month: "October",
-    name: "Synthetic Data",
-    category: "AI Infrastructure",
-    color: "#2dd4bf",
-    front: "SYN",
-    back: "DATASET 10",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back dataset stamp"],
-  },
-  {
-    id: "nov",
-    month: "November",
-    name: "Open Weights",
-    category: "Founder",
-    color: "#c084fc",
-    front: "OPEN",
-    back: "WEIGHTS",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Purple-white collector label"],
-  },
-  {
-    id: "dec",
-    month: "December",
-    name: "Ship Week",
-    category: "Cyber",
-    color: "#ffffff",
-    front: "SHIP",
-    back: "DEPLOYED",
-    specs: ["260 GSM heavyweight cotton", "Oversized fit", "Premium screen print", "Limited release numbering", "Back release checklist"],
-  },
-];
+const roadmapCollections = concepts.map((concept) => ({ ...concept, name: concept.collection }));
 
 const voteStorageKey = "ai-shirt-club-roadmap-votes";
 const collectionFilters = ["All", "AI Infrastructure", "Agents", "Cyber", "Founder"];
+const conceptViewKeys = ["front", "back", "detail"];
+
+function buildSurveyUrl(queryParams = {}) {
+  const [urlWithoutHash, hash = ""] = VALIDATION_SURVEY_URL.split("#");
+  const [baseUrl, existingQuery = ""] = urlWithoutHash.split("?");
+  const searchParams = new URLSearchParams(existingQuery);
+
+  Object.entries(queryParams).forEach(([key, value]) => {
+    searchParams.set(key, value);
+  });
+
+  const queryString = searchParams.toString();
+  const urlWithQuery = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+
+  return hash ? `${urlWithQuery}#${hash}` : urlWithQuery;
+}
+
+function buildConceptSurveyUrl(item) {
+  const month = item.month.toLowerCase();
+  const category = item.category.toLowerCase();
+
+  return buildSurveyUrl({
+    [GOOGLE_FORM_ENTRIES.month]: month,
+    [GOOGLE_FORM_ENTRIES.collection]: item.slug,
+    [GOOGLE_FORM_ENTRIES.category]: category,
+    [GOOGLE_FORM_ENTRIES.intent]: "vote",
+    [GOOGLE_FORM_ENTRIES.source]: "calendar",
+    debug_month: month,
+    debug_collection: item.slug,
+    debug_category: category,
+  });
+}
 
 const apparelSpecs = [
   "260 GSM heavyweight cotton",
@@ -275,7 +198,7 @@ const founderBenefits = [
   "Vote on first collection direction",
   "First look at pricing and shipping plan",
   "Optional founder number if the club launches",
-  "No payment collected today",
+  "Feedback before launch",
   "Clear launch updates by email",
 ];
 
@@ -316,7 +239,7 @@ const cyberReliabilityChecks = [
   },
   {
     title: "JSONL Audit Replay",
-    copy: "Keeps replayable request, decision, and outcome records for debugging eval failures and judging regressions.",
+    copy: "Keeps replayable request, decision, and outcome records for reviewing eval failures and judging regressions.",
     icon: FileJson,
   },
 ];
@@ -393,7 +316,7 @@ function CTA({ children = "Answer Validation Survey", variant = "primary", class
       : "border border-white/15 bg-white/5 text-white hover:border-cyan/60 hover:bg-cyan/10";
 
   return (
-    <a href={formUrl} target="_blank" rel="noreferrer" className={`${base} ${styles} ${className}`}>
+    <a href={VALIDATION_SURVEY_URL} target="_blank" rel="noreferrer" className={`${base} ${styles} ${className}`}>
       {children}
       <ArrowRight className="h-4 w-4" aria-hidden="true" />
     </a>
@@ -500,6 +423,618 @@ function RoadmapMockup({ item }) {
   );
 }
 
+function ConceptPattern({ category }) {
+  if (category === "Founder") {
+    return (
+      <div className="concept-pattern founder-pattern" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+    );
+  }
+
+  if (category === "Agents") {
+    return (
+      <div className="concept-pattern agents-pattern" aria-hidden="true">
+        <span>system</span>
+        <span>tool.call</span>
+        <span>observe</span>
+      </div>
+    );
+  }
+
+  if (category === "Cyber") {
+    return (
+      <div className="concept-pattern cyber-pattern" aria-hidden="true">
+        {["PASS", "FAIL", "SCORE", "DEPLOY"].map((label) => (
+          <span key={label}>{label}</span>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="concept-pattern infra-pattern" aria-hidden="true">
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+  );
+}
+
+function ConceptPlaceholder({ item, viewKey, view }) {
+  const viewClass = "concept-shirt-" + viewKey;
+  const patternClass = "pattern-" + view.fallbackPattern;
+
+  return (
+    <div
+      className={"concept-shirt " + viewClass + " " + patternClass}
+      data-fallback="css-concept-preview"
+    >
+      <div className="concept-neck" />
+      <ConceptPattern category={item.category} />
+      {viewKey === "front" && (
+        <div className="concept-front-mark">
+          <span>{view.label}</span>
+          <strong>{item.front}</strong>
+        </div>
+      )}
+      {viewKey === "back" && (
+        <div className="concept-back-print">
+          <span>Back print direction</span>
+          <strong>{item.back}</strong>
+          <em>{item.month} collector mark</em>
+        </div>
+      )}
+      {viewKey === "detail" && (
+        <div className="concept-detail-study">
+          {["Prompt marks", "Collector badge", "Typography system", "Pattern study"].map((label) => (
+            <span key={label}>{label}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const conceptTrustLabels = [
+  "AI concept preview — final production artwork may vary.",
+  "No live inventory claims.",
+  "No checkout or payment is active.",
+  "Monthly concepts are roadmap previews for validation.",
+];
+
+function ConceptTrustLabels({ className = "" }) {
+  return (
+    <div className={"concept-trust-labels " + className} aria-label="Concept preview trust notes">
+      {conceptTrustLabels.map((label) => (
+        <span key={label}>{label}</span>
+      ))}
+    </div>
+  );
+}
+
+function ConceptPreview({ item, activeViewKey, loading = "lazy", fetchPriority }) {
+  const activeView = item.views[activeViewKey];
+  const [imageFailed, setImageFailed] = useState(false);
+  const categoryClass = item.category.toLowerCase().replace(/\s+/g, "-");
+  const shouldRenderImage = Boolean(activeView.imagePath && !imageFailed);
+  const showFallback = !shouldRenderImage;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [activeView.imagePath, activeViewKey]);
+
+  return (
+    <div
+      className={"concept-preview " + categoryClass}
+      style={{ "--accent": item.color }}
+      data-has-image-fallback="true"
+    >
+      <div className={"concept-visual-frame " + (shouldRenderImage ? "has-image" : "")} data-active-view={activeViewKey}>
+        {showFallback && <ConceptPlaceholder item={item} view={activeView} viewKey={activeViewKey} />}
+        {shouldRenderImage && (
+          <img
+            src={activeView.imagePath}
+            alt={activeView.alt}
+            className="concept-preview-image is-loaded"
+            loading={loading}
+            decoding="async"
+            fetchPriority={fetchPriority}
+            onError={() => setImageFailed(true)}
+          />
+        )}
+      </div>
+      <p className="concept-view-caption">{activeView.caption}</p>
+      <p className="mt-2 text-[11px] leading-5 text-slate-500">
+        AI concept preview &mdash; final production artwork may vary.
+      </p>
+    </div>
+  );
+}
+
+function ConceptPosterPreview({ item, priority = false }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const posterView = {
+    ...item.views.front,
+    imagePath: item.posterPath,
+    alt: "AI concept poster preview for " + item.month + " — " + item.name,
+    caption: "Poster concept — Founding Drop #001 visual system",
+  };
+  const categoryClass = item.category.toLowerCase().replace(/\s+/g, "-");
+  const shouldRenderImage = Boolean(item.posterPath && !imageFailed);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [item.posterPath]);
+
+  return (
+    <div
+      className={"concept-preview founding-poster-preview " + categoryClass}
+      style={{ "--accent": item.color }}
+      data-has-image-fallback="true"
+    >
+      <div className={"concept-visual-frame " + (shouldRenderImage ? "has-image" : "")} data-active-view="poster">
+        {!shouldRenderImage && <ConceptPlaceholder item={item} view={item.views.front} viewKey="front" />}
+        {shouldRenderImage && (
+          <img
+            src={item.posterPath}
+            alt={posterView.alt}
+            className="concept-preview-image is-loaded"
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={priority ? "high" : undefined}
+            onError={() => setImageFailed(true)}
+          />
+        )}
+      </div>
+      <p className="concept-view-caption">{posterView.caption}</p>
+      <p className="mt-2 text-[11px] leading-5 text-slate-500">
+        AI concept preview &mdash; final production artwork may vary.
+      </p>
+    </div>
+  );
+}
+
+function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
+  const [activeViewKey, setActiveViewKey] = useState("front");
+  const surveyUrl = buildConceptSurveyUrl(item);
+  const showcaseViews = [
+    ...conceptViewKeys.map((viewKey) => ({ key: viewKey, label: item.views[viewKey].label })),
+    { key: "poster", label: "Poster" },
+  ];
+
+  return (
+    <section className="founding-showcase" aria-labelledby="founding-drop-title">
+      <div className="founding-showcase-poster">
+        <p className="founding-showcase-kicker">Founding Drop concept</p>
+        <ConceptPosterPreview item={item} priority />
+      </div>
+
+      <div className="founding-showcase-panel">
+        <p className="founding-showcase-kicker">360 Visual Concept</p>
+        <h3 id="founding-drop-title">Founding Drop #001 &mdash; Token Black</h3>
+        <p className="founding-showcase-subtitle">
+          A 360 visual concept for a premium AI-designed collector shirt.
+        </p>
+        <p className="founding-showcase-trust">
+          AI concept preview &mdash; final production artwork may vary.
+        </p>
+
+        <div className="founding-showcase-tabs" role="group" aria-label="Token Black showcase views">
+          {showcaseViews.map((view) => (
+            <button
+              key={view.key}
+              type="button"
+              className={"concept-view-toggle " + (activeViewKey === view.key ? "is-active" : "")}
+              data-cta="founding-drop-view-toggle"
+              data-month={item.month.toLowerCase()}
+              data-collection={item.slug}
+              data-view={view.key}
+              aria-pressed={activeViewKey === view.key}
+              onClick={() => setActiveViewKey(view.key)}
+            >
+              {view.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="founding-showcase-preview">
+          {activeViewKey === "poster" ? (
+            <ConceptPosterPreview item={item} />
+          ) : (
+            <ConceptPreview item={item} activeViewKey={activeViewKey} />
+          )}
+        </div>
+
+        <div className="founding-showcase-notes">
+          {[
+            "Built around radial token geometry, cyan micro-grid marks, and founder-edition typography.",
+            "Visual system uses polar-grid symmetry, modular construction lines, and collector badge motifs.",
+            "Designed as a human-curated AI concept preview before production validation.",
+          ].map((note) => (
+            <p key={note}>{note}</p>
+          ))}
+        </div>
+
+        <ConceptTrustLabels />
+
+        <div className="founding-showcase-actions">
+          <button
+            type="button"
+            className="concept-360-button"
+            data-cta="open-360-concept"
+            data-month={item.month.toLowerCase()}
+            data-collection={item.slug}
+            onClick={() => onOpen360(item)}
+          >
+            View 360 Concept
+          </button>
+          <a
+            href={surveyUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="founding-vote-link"
+            data-cta="founding-drop-vote"
+            data-month={item.month.toLowerCase()}
+            data-collection={item.slug}
+            data-category={item.category.toLowerCase()}
+            onClick={() => onConceptVote(item.id)}
+          >
+            Vote for Token Black
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </a>
+          {/* True 3D should be lazy-loaded only when a real .glb asset exists. */}
+          {item.modelPath && (
+            <a
+              href={item.modelPath}
+              target="_blank"
+              rel="noreferrer"
+              className="founding-model-link"
+              data-cta="view-spatial-concept"
+              data-month={item.month.toLowerCase()}
+              data-collection={item.slug}
+            >
+              View Spatial Concept
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Concept360Modal({ item, onClose, onConceptVote }) {
+  const [activeViewKey, setActiveViewKey] = useState("front");
+  const closeButtonRef = useRef(null);
+  const surveyUrl = buildConceptSurveyUrl(item);
+
+  useEffect(() => {
+    setActiveViewKey("front");
+  }, [item.id]);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="concept-modal-backdrop"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <section
+        className="concept-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`concept-modal-title-${item.id}`}
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="concept-modal-header">
+          <div>
+            <p className="concept-modal-kicker">360 Visual Concept</p>
+            <h3 id={`concept-modal-title-${item.id}`} className="concept-modal-title">
+              {item.month} — {item.name}
+            </h3>
+            <p className="concept-modal-subtitle">
+              AI concept preview — final production artwork may vary.
+            </p>
+          </div>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            className="concept-modal-close"
+            aria-label="Close 360 concept modal"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="concept-modal-meta">
+          <span>{item.category}</span>
+          <span>Status: {item.status}</span>
+        </div>
+
+        <div className="concept-modal-grid">
+          <div>
+            <div className="concept-modal-tabs" role="group" aria-label={`${item.name} modal views`}>
+              {conceptViewKeys.map((viewKey) => {
+                const view = item.views[viewKey];
+                const isActive = activeViewKey === viewKey;
+
+                return (
+                  <button
+                    key={viewKey}
+                    type="button"
+                    className={"concept-view-toggle " + (isActive ? "is-active" : "")}
+                    data-cta="concept-modal-view-toggle"
+                    data-month={item.month.toLowerCase()}
+                    data-collection={item.slug}
+                    data-view={viewKey}
+                    aria-pressed={isActive}
+                    onClick={() => setActiveViewKey(viewKey)}
+                  >
+                    {view.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="concept-modal-visual">
+              <ConceptPreview item={item} activeViewKey={activeViewKey} />
+            </div>
+          </div>
+
+          <div className="concept-modal-details">
+            <div className="concept-modal-stat-grid">
+              <p>
+                <span>Front text</span>
+                <strong>{item.front}</strong>
+              </p>
+              <p>
+                <span>Back text</span>
+                <strong>{item.back}</strong>
+              </p>
+            </div>
+            <div>
+              <span className="concept-modal-label">Theme</span>
+              <p>{item.theme}</p>
+            </div>
+            <div>
+              <span className="concept-modal-label">Design logic</span>
+              <p>{item.designLogic}</p>
+            </div>
+            <a
+              href={surveyUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="concept-modal-vote"
+              data-cta="calendar-concept-vote"
+              data-month={item.month.toLowerCase()}
+              data-collection={item.slug}
+              data-category={item.category.toLowerCase()}
+              onClick={() => onConceptVote(item.id)}
+            >
+              Vote for This Concept
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ConceptCard({ item, onConceptVote, onOpen360 }) {
+  const [activeViewKey, setActiveViewKey] = useState("front");
+  const surveyUrl = buildConceptSurveyUrl(item);
+
+  return (
+    <article className="group flex flex-col rounded-3xl border border-white/10 bg-ink p-4 transition duration-300 hover:-translate-y-1 hover:border-cyan/40">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+            {item.month}
+          </p>
+          <h4 className="mt-1 text-2xl font-semibold text-white">{item.name}</h4>
+        </div>
+        <span className="rounded-full border border-cyan/20 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan">
+          {item.category}
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-3 gap-2" role="group" aria-label={item.name + " preview views"}>
+        {conceptViewKeys.map((viewKey) => {
+          const view = item.views[viewKey];
+          const isActive = activeViewKey === viewKey;
+
+          return (
+            <button
+              key={viewKey}
+              type="button"
+              className={"concept-view-toggle " + (isActive ? "is-active" : "")}
+              data-cta="concept-view-toggle"
+              data-month={item.month.toLowerCase()}
+              data-collection={item.slug}
+              data-view={viewKey}
+              aria-pressed={isActive}
+              aria-label={"Show " + view.label.toLowerCase() + " view for " + item.name}
+              onClick={() => setActiveViewKey(viewKey)}
+            >
+              {view.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <ConceptPreview item={item} activeViewKey={activeViewKey} />
+
+      <div className="mt-5 grid gap-3 text-sm leading-6 text-slate-300">
+        <div className="grid grid-cols-2 gap-3">
+          <p className="rounded-2xl bg-white/[0.04] p-3">
+            <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Front Text
+            </span>
+            <span className="mt-1 block font-semibold text-white">{item.front}</span>
+          </p>
+          <p className="rounded-2xl bg-white/[0.04] p-3">
+            <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Back Text
+            </span>
+            <span className="mt-1 block font-semibold text-white">{item.back}</span>
+          </p>
+        </div>
+        <p>{item.theme}</p>
+        <p className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-5 text-slate-400">
+          <span className="font-semibold uppercase tracking-[0.16em] text-cyan">Design logic:</span>{" "}
+          {item.designLogic}
+        </p>
+      </div>
+
+      <details className="group mt-4 border-t border-white/10 pt-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 transition hover:text-cyan">
+          View Design Log
+          <ChevronDown className="h-4 w-4 transition group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <dl className="mt-3 grid gap-3 text-sm leading-6 text-slate-400">
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">
+              Prompt direction
+            </dt>
+            <dd className="mt-1">{item.promptDirection}</dd>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Front text
+              </dt>
+              <dd className="mt-1 font-semibold text-white">{item.front}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Back text
+              </dt>
+              <dd className="mt-1 font-semibold text-white">{item.back}</dd>
+            </div>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">
+              Design logic
+            </dt>
+            <dd className="mt-1">{item.designLogic}</dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">
+              Status
+            </dt>
+            <dd className="mt-1">{item.status}</dd>
+          </div>
+        </dl>
+      </details>
+
+      <button
+        type="button"
+        className="concept-360-button"
+        data-cta="open-360-concept"
+        data-month={item.month.toLowerCase()}
+        data-collection={item.slug}
+        onClick={() => onOpen360(item)}
+      >
+        View 360 Concept
+      </button>
+
+      <a
+        href={surveyUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-cyan px-5 text-sm font-semibold text-night transition duration-300 hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-cyan/70 focus:ring-offset-2 focus:ring-offset-night"
+        data-cta="calendar-concept-vote"
+        data-month={item.month.toLowerCase()}
+        data-collection={item.slug}
+        data-category={item.category.toLowerCase()}
+        onClick={() => onConceptVote(item.id)}
+      >
+        Vote for This Concept
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </a>
+    </article>
+  );
+}
+
+function ConceptCalendar({ onConceptVote }) {
+  const [activeModalConcept, setActiveModalConcept] = useState(null);
+  const foundingDrop = roadmapCollections[0];
+
+  return (
+    <>
+      <div className="mt-14 rounded-[2rem] border border-white/10 bg-night/45 p-5 sm:p-6 lg:p-8">
+        <FoundingDropShowcase
+          item={foundingDrop}
+          onOpen360={setActiveModalConcept}
+          onConceptVote={onConceptVote}
+        />
+
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan">
+              Product Preview Calendar
+            </p>
+            <h3 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              12-Month Concept Calendar
+            </h3>
+            <p className="mt-4 text-base leading-7 text-slate-300 sm:text-lg">
+              AI-generated visual previews for each monthly AI Shirt Club drop.
+            </p>
+          </div>
+          <ConceptTrustLabels className="lg:max-w-md" />
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {roadmapCollections.map((item) => (
+            <ConceptCard
+              key={item.id}
+              item={item}
+              onConceptVote={onConceptVote}
+              onOpen360={setActiveModalConcept}
+            />
+          ))}
+        </div>
+      </div>
+
+      {activeModalConcept && (
+        <Concept360Modal
+          item={activeModalConcept}
+          onClose={() => setActiveModalConcept(null)}
+          onConceptVote={onConceptVote}
+        />
+      )}
+    </>
+  );
+}
+
 function CollectionRoadmap() {
   const [activeId, setActiveId] = useState(roadmapCollections[0].id);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -533,6 +1068,7 @@ function CollectionRoadmap() {
     }))
     .sort((a, b) => b.score - a.score);
 
+  // Local vote counts are demo-only until connected to persistent storage.
   function handleVote(collectionId, voteType) {
     setActiveId(collectionId);
     setVotes((currentVotes) => {
@@ -547,6 +1083,10 @@ function CollectionRoadmap() {
       window.localStorage.setItem(voteStorageKey, JSON.stringify(nextVotes));
       return nextVotes;
     });
+  }
+
+  function handleConceptCalendarVote(collectionId) {
+    handleVote(collectionId, "wear");
   }
 
   return (
@@ -670,6 +1210,8 @@ function CollectionRoadmap() {
           </div>
         </div>
 
+        <ConceptCalendar onConceptVote={handleConceptCalendarVote} />
+
         <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-3xl border border-white/10 bg-ink p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
@@ -738,7 +1280,9 @@ function CollectionRoadmap() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
                 Collection Comparison Table
               </p>
-              <h3 className="mt-2 text-2xl font-semibold text-white">Roadmap Concepts</h3>
+              <h3 className="mt-2 text-2xl font-semibold text-white">
+                Concept Specs / Collector Roadmap
+              </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
@@ -924,7 +1468,7 @@ function ValidationOffer() {
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
-                ["No", "Payment today"],
+                ["No", "Sales pitch"],
                 ["No", "Fake countdown"],
                 ["Yes", "Founder feedback"],
               ].map(([metric, label]) => (
@@ -1093,7 +1637,7 @@ function App() {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-slate-200">
             <Sparkles className="h-4 w-4 text-cyan" aria-hidden="true" />
-            Validation page, not a checkout
+            Validation page, not a storefront
           </div>
           <h1 className="mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
             AI Shirt Club Concept Showcase
@@ -1103,7 +1647,7 @@ function App() {
           </p>
           <p className="mt-5 max-w-2xl text-base leading-8 text-slate-400 sm:text-lg">
             We are validating whether AI engineers, builders, founders, and tech professionals
-            actually want a premium apparel membership before taking orders or manufacturing inventory.
+            actually want a premium apparel membership before selling or manufacturing inventory.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <CTA />
@@ -1283,7 +1827,7 @@ function App() {
 
       <section className="mx-auto grid max-w-7xl gap-4 px-5 py-8 sm:grid-cols-3 sm:px-8">
         {[
-          ["No payment today", ShieldCheck],
+          ["Feedback only", ShieldCheck],
           ["No fake scarcity", BadgeCheck],
           ["Transparent validation", Truck],
         ].map(([label, Icon]) => (
