@@ -490,6 +490,381 @@ body {
   line-height: 1.65;
 }
 
+.spatial-preview-panel {
+  display: grid;
+  gap: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(98, 232, 255, 0.14);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(98, 232, 255, 0.12), transparent 30%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
+  padding: 16px;
+}
+
+.spatial-preview-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.spatial-preview-copy h4 {
+  color: #ffffff;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+.spatial-preview-copy p {
+  max-width: 650px;
+  color: rgba(203, 213, 225, 0.88);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.spatial-preview-trust {
+  width: fit-content;
+  border: 1px solid rgba(98, 232, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(98, 232, 255, 0.07);
+  padding: 7px 10px;
+  color: rgba(234, 244, 255, 0.82);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+
+.spatial-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.spatial-preview-stage {
+  perspective: 1100px;
+}
+
+.spatial-preview-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 30%),
+    linear-gradient(145deg, rgba(4, 8, 16, 0.94), rgba(2, 3, 8, 0.94));
+  padding: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 24px 70px rgba(0, 0, 0, 0.28);
+  transform: rotateX(0deg) rotateY(0deg) translateZ(0);
+  transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+}
+
+.spatial-preview-card:hover,
+.spatial-preview-card:focus-within {
+  border-color: rgba(98, 232, 255, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 28px 90px rgba(0, 0, 0, 0.36);
+  transform: rotateX(2.5deg) rotateY(-3deg) translateY(-2px);
+}
+
+.spatial-preview-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background:
+    linear-gradient(rgba(98, 232, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(98, 232, 255, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, transparent 0 28%, rgba(98, 232, 255, 0.16) 29% 29.5%, transparent 30%);
+  background-size: 26px 26px, 26px 26px, auto;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.68), transparent 86%);
+  pointer-events: none;
+}
+
+.spatial-light-sweep {
+  position: absolute;
+  inset: -30% auto -30% -45%;
+  z-index: 12;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  opacity: 0.38;
+  transform: rotate(18deg);
+  transition: left 520ms ease;
+  pointer-events: none;
+}
+
+.spatial-preview-card:hover .spatial-light-sweep,
+.spatial-preview-card:focus-within .spatial-light-sweep {
+  left: 105%;
+}
+
+.spatial-preview-card .concept-preview {
+  margin-top: 0;
+}
+
+.spatial-preview-card .concept-visual-frame,
+.spatial-preview-card .concept-shirt {
+  min-height: clamp(270px, 34vw, 430px);
+}
+
+.spatial-blueprint {
+  position: relative;
+  min-height: clamp(270px, 34vw, 430px);
+  overflow: hidden;
+  border: 1px solid rgba(98, 232, 255, 0.2);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(98, 232, 255, 0.16), transparent 36%),
+    linear-gradient(145deg, rgba(6, 12, 24, 0.96), rgba(2, 3, 8, 0.98));
+}
+
+.spatial-blueprint-grid,
+.spatial-blueprint-rings,
+.spatial-blueprint-arcs,
+.spatial-blueprint-axis {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.spatial-blueprint-grid {
+  background:
+    linear-gradient(rgba(98, 232, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(98, 232, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.spatial-blueprint-rings {
+  inset: 12%;
+  border: 1px solid rgba(98, 232, 255, 0.42);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 42px rgba(98, 232, 255, 0.055),
+    0 0 0 84px rgba(98, 232, 255, 0.035),
+    0 0 46px rgba(98, 232, 255, 0.18);
+}
+
+.spatial-blueprint-arcs {
+  inset: 20%;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 999px;
+  transform: rotate(-22deg);
+}
+
+.spatial-blueprint-axis.horizontal {
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(98, 232, 255, 0.6), transparent);
+}
+
+.spatial-blueprint-axis.vertical {
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(98, 232, 255, 0.6), transparent);
+}
+
+.spatial-blueprint-token,
+.spatial-blueprint-coordinates,
+.spatial-blueprint-note {
+  position: absolute;
+  z-index: 4;
+  border: 1px solid rgba(98, 232, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(2, 3, 8, 0.56);
+  color: #eaf4ff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.spatial-blueprint-token {
+  left: 50%;
+  top: 50%;
+  padding: 14px 18px;
+  transform: translate(-50%, -50%);
+}
+
+.spatial-blueprint-coordinates {
+  left: 16px;
+  top: 16px;
+  padding: 8px 10px;
+}
+
+.spatial-blueprint-note {
+  right: 16px;
+  bottom: 16px;
+  max-width: 240px;
+  border-radius: 16px;
+  padding: 9px 11px;
+}
+
+.spatial-overlay-stack {
+  position: absolute;
+  inset: 10px;
+  z-index: 14;
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.spatial-geometry-overlay,
+.spatial-print-zones {
+  position: absolute;
+  inset: 0;
+}
+
+.spatial-ring,
+.spatial-guide,
+.spatial-coordinate,
+.print-zone {
+  position: absolute;
+  border: 1px solid rgba(98, 232, 255, 0.46);
+  color: rgba(234, 244, 255, 0.86);
+}
+
+.spatial-ring {
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.ring-one {
+  width: 38%;
+  aspect-ratio: 1;
+}
+
+.ring-two {
+  width: 56%;
+  aspect-ratio: 1;
+  border-style: dashed;
+}
+
+.ring-three {
+  width: 74%;
+  aspect-ratio: 1;
+  opacity: 0.48;
+}
+
+.spatial-guide {
+  left: 18%;
+  top: 50%;
+  width: 64%;
+  height: 1px;
+  transform-origin: center;
+}
+
+.guide-one {
+  transform: rotate(0deg);
+}
+
+.guide-two {
+  transform: rotate(34deg);
+}
+
+.guide-three {
+  transform: rotate(-55deg);
+}
+
+.spatial-coordinate,
+.print-zone {
+  border-radius: 999px;
+  background: rgba(2, 3, 8, 0.56);
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.coord-one {
+  left: 10%;
+  top: 16%;
+}
+
+.coord-two {
+  right: 11%;
+  top: 34%;
+}
+
+.coord-three {
+  left: 18%;
+  bottom: 14%;
+}
+
+.print-zone.chest {
+  left: 42%;
+  top: 22%;
+}
+
+.print-zone.back {
+  left: 34%;
+  top: 46%;
+  min-width: 118px;
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+}
+
+.print-zone.sleeve {
+  right: 8%;
+  top: 28%;
+}
+
+.print-zone.detail {
+  left: 8%;
+  bottom: 14%;
+}
+
+.spatial-tool-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.spatial-tool-toggle {
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(203, 213, 225, 0.88);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.spatial-tool-toggle:hover,
+.spatial-tool-toggle:focus-visible,
+.spatial-tool-toggle.is-active {
+  border-color: rgba(98, 232, 255, 0.58);
+  background: rgba(98, 232, 255, 0.12);
+  color: #ffffff;
+  outline: none;
+}
+
+.spatial-prompt-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.spatial-prompt-notes span {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  padding: 10px 11px;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .concept-trust-labels {
   display: flex;
   flex-wrap: wrap;
@@ -1113,6 +1488,34 @@ details summary::-webkit-details-marker {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .spatial-preview-panel {
+    border-radius: 20px;
+    padding: 12px;
+  }
+
+  .spatial-mode-tabs,
+  .spatial-tool-row,
+  .spatial-prompt-notes {
+    grid-template-columns: 1fr;
+  }
+
+  .spatial-preview-card,
+  .spatial-blueprint {
+    border-radius: 18px;
+  }
+
+  .spatial-preview-card .concept-visual-frame,
+  .spatial-preview-card .concept-shirt,
+  .spatial-blueprint {
+    min-height: 330px;
+  }
+
+  .spatial-blueprint-note {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+
   .founding-showcase-actions {
     display: grid;
   }
@@ -1172,5 +1575,23 @@ details summary::-webkit-details-marker {
 
   .mini-shirt {
     min-height: 260px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spatial-preview-card,
+  .spatial-light-sweep,
+  .spatial-tool-toggle,
+  .concept-view-toggle {
+    transition: none;
+  }
+
+  .spatial-preview-card:hover,
+  .spatial-preview-card:focus-within {
+    transform: none;
+  }
+
+  .spatial-light-sweep {
+    display: none;
   }
 }

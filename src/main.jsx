@@ -600,6 +600,156 @@ function ConceptPosterPreview({ item, priority = false }) {
   );
 }
 
+function SpatialBlueprintOverlay({ item }) {
+  return (
+    <div className="spatial-blueprint" aria-label="Token Black blueprint geometry preview">
+      <div className="spatial-blueprint-grid" />
+      <div className="spatial-blueprint-rings" />
+      <div className="spatial-blueprint-arcs" />
+      <div className="spatial-blueprint-axis horizontal" />
+      <div className="spatial-blueprint-axis vertical" />
+      <div className="spatial-blueprint-token">TOKEN 01</div>
+      <div className="spatial-blueprint-coordinates">JAN / {item.slug.toUpperCase()}</div>
+      <div className="spatial-blueprint-note">Polar grid / founder badge / cyan micro-map</div>
+    </div>
+  );
+}
+
+function SpatialOverlays({ activeTools }) {
+  return (
+    <div className="spatial-overlay-stack" aria-hidden="true">
+      {activeTools.geometry && (
+        <div className="spatial-geometry-overlay">
+          <span className="spatial-ring ring-one" />
+          <span className="spatial-ring ring-two" />
+          <span className="spatial-ring ring-three" />
+          <span className="spatial-guide guide-one" />
+          <span className="spatial-guide guide-two" />
+          <span className="spatial-guide guide-three" />
+          <span className="spatial-coordinate coord-one">A01</span>
+          <span className="spatial-coordinate coord-two">C/01</span>
+          <span className="spatial-coordinate coord-three">PHI</span>
+        </div>
+      )}
+      {activeTools.printZones && (
+        <div className="spatial-print-zones">
+          <span className="print-zone chest">Chest mark</span>
+          <span className="print-zone back">Back graphic</span>
+          <span className="print-zone sleeve">Badge zone</span>
+          <span className="print-zone detail">Detail crop</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SpatialConceptPreview({ item }) {
+  const [activeMode, setActiveMode] = useState("front");
+  const [activeTools, setActiveTools] = useState({
+    geometry: true,
+    printZones: false,
+    promptNotes: false,
+  });
+
+  const spatialModes = [
+    { key: "front", label: "Front" },
+    { key: "back", label: "Back" },
+    { key: "detail", label: "Detail" },
+    { key: "poster", label: "Poster" },
+    { key: "blueprint", label: "Blueprint" },
+  ];
+  const spatialTools = [
+    { key: "geometry", label: "Show Geometry" },
+    { key: "printZones", label: "Show Print Zones" },
+    { key: "promptNotes", label: "Show Prompt Notes" },
+  ];
+  const promptNotes = [
+    "Human-curated AI visual direction",
+    "Matte black collector shirt",
+    "Cyan micro-grid",
+    "Token badge geometry",
+    "Founder Drop #001 system",
+  ];
+
+  function toggleTool(toolKey) {
+    setActiveTools((current) => ({
+      ...current,
+      [toolKey]: !current[toolKey],
+    }));
+  }
+
+  return (
+    <section className="spatial-preview-panel" aria-labelledby="spatial-preview-title">
+      <div className="spatial-preview-copy">
+        <p className="founding-showcase-kicker">Spatial concept preview</p>
+        <h4 id="spatial-preview-title">Spatial Concept Preview</h4>
+        <p>
+          A lightweight 360-style simulation of Token Black's front, back, detail, and collector-poster system.
+        </p>
+        <span className="spatial-preview-trust">AI concept preview &mdash; final production artwork may vary.</span>
+      </div>
+
+      <div className="spatial-mode-tabs" role="tablist" aria-label="Token Black spatial preview modes">
+        {spatialModes.map((mode) => (
+          <button
+            key={mode.key}
+            type="button"
+            role="tab"
+            className={"concept-view-toggle " + (activeMode === mode.key ? "is-active" : "")}
+            data-cta="spatial-preview-mode"
+            data-month={item.month.toLowerCase()}
+            data-collection={item.slug}
+            data-mode={mode.key}
+            aria-selected={activeMode === mode.key}
+            aria-pressed={activeMode === mode.key}
+            onClick={() => setActiveMode(mode.key)}
+          >
+            {mode.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="spatial-preview-stage" style={{ "--accent": item.color }}>
+        <div className="spatial-preview-card" data-mode={activeMode}>
+          <div className="spatial-light-sweep" />
+          {activeMode === "blueprint" ? (
+            <SpatialBlueprintOverlay item={item} />
+          ) : activeMode === "poster" ? (
+            <ConceptPosterPreview item={item} />
+          ) : (
+            <ConceptPreview item={item} activeViewKey={activeMode} />
+          )}
+          <SpatialOverlays activeTools={activeTools} />
+        </div>
+      </div>
+
+      <div className="spatial-tool-row" role="group" aria-label="Spatial preview overlays">
+        {spatialTools.map((tool) => (
+          <button
+            key={tool.key}
+            type="button"
+            className={"spatial-tool-toggle " + (activeTools[tool.key] ? "is-active" : "")}
+            data-cta="spatial-preview-tool"
+            data-tool={tool.key}
+            aria-pressed={activeTools[tool.key]}
+            onClick={() => toggleTool(tool.key)}
+          >
+            {tool.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTools.promptNotes && (
+        <div className="spatial-prompt-notes" aria-label="Prompt notes for Token Black">
+          {promptNotes.map((note) => (
+            <span key={note}>{note}</span>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
   const [activeViewKey, setActiveViewKey] = useState("front");
   const surveyUrl = buildConceptSurveyUrl(item);
@@ -661,6 +811,8 @@ function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
           ))}
         </div>
 
+        <SpatialConceptPreview item={item} />
+
         <ConceptTrustLabels />
 
         <div className="founding-showcase-actions">
@@ -699,7 +851,7 @@ function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
               data-month={item.month.toLowerCase()}
               data-collection={item.slug}
             >
-              View Spatial Concept
+              View 3D Model
             </a>
           )}
         </div>
