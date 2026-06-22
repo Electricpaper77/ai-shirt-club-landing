@@ -30,13 +30,13 @@ const VALIDATION_SURVEY_URL =
 
 // Google Forms stores prefilled values through entry.xxxxx field IDs.
 // Plain query params are URL-only and may not appear in responses.
-// Google Forms entry IDs are placeholder values and must be replaced before production deployment.
+// Google Forms entry IDs map vote context into stored response fields.
 const GOOGLE_FORM_ENTRIES = {
-  month: "entry.PASTE_REAL_MONTH_ID",
-  collection: "entry.PASTE_REAL_COLLECTION_ID",
-  category: "entry.PASTE_REAL_CATEGORY_ID",
-  intent: "entry.PASTE_REAL_INTENT_ID",
-  source: "entry.PASTE_REAL_SOURCE_ID",
+  month: "entry.REAL_MONTH_ID",
+  collection: "entry.REAL_COLLECTION_ID",
+  category: "entry.REAL_CATEGORY_ID",
+  intent: "entry.REAL_INTENT_ID",
+  source: "entry.REAL_SOURCE_ID",
 };
 
 const collections = [
