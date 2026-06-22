@@ -30,7 +30,7 @@ const VALIDATION_SURVEY_URL =
 
 // Google Forms stores prefilled values through entry.xxxxx field IDs.
 // Plain query params are URL-only and may not appear in responses.
-// Google Forms entry IDs map vote context into stored response fields.
+// Google Forms entry IDs must be replaced with real entry.xxxxx IDs before serious validation.
 const GOOGLE_FORM_ENTRIES = {
   month: "entry.REAL_MONTH_ID",
   collection: "entry.REAL_COLLECTION_ID",
@@ -71,6 +71,36 @@ const roadmapCollections = concepts.map((concept) => ({ ...concept, name: concep
 const voteStorageKey = "ai-shirt-club-roadmap-votes";
 const collectionFilters = ["All", "AI Infrastructure", "Agents", "Cyber", "Founder"];
 const conceptViewKeys = ["front", "back", "detail"];
+const DEBUG_ANALYTICS = import.meta.env.VITE_DEBUG_ANALYTICS === "true";
+const analyticsPayloadKeys = ["month", "collection", "category", "mode", "overlay", "source"];
+
+function analyticsPayloadForConcept(item, extraPayload = {}) {
+  return {
+    month: item.month.toLowerCase(),
+    collection: item.slug,
+    category: item.category.toLowerCase(),
+    ...extraPayload,
+  };
+}
+
+function trackEvent(eventName, payload = {}) {
+  const safePayload = analyticsPayloadKeys.reduce((currentPayload, key) => {
+    if (payload[key] !== undefined && payload[key] !== null) {
+      return {
+        ...currentPayload,
+        [key]: String(payload[key]),
+      };
+    }
+
+    return currentPayload;
+  }, {});
+
+  if (import.meta.env.DEV || DEBUG_ANALYTICS) {
+    console.info("[ai-shirt-club analytics]", eventName, safePayload);
+  }
+
+  return { eventName, payload: safePayload };
+}
 
 function buildSurveyUrl(queryParams = {}) {
   const [urlWithoutHash, hash = ""] = VALIDATION_SURVEY_URL.split("#");
@@ -518,6 +548,14 @@ function ConceptTrustLabels({ className = "" }) {
   );
 }
 
+function VoteTrustNote() {
+  return (
+    <p className="vote-trust-note">
+      Votes open a validation survey. No checkout or storefront ordering is active.
+    </p>
+  );
+}
+
 function ConceptPreview({ item, activeViewKey, loading = "lazy", fetchPriority }) {
   const activeView = item.views[activeViewKey];
   const [imageFailed, setImageFailed] = useState(false);
@@ -659,9 +697,9 @@ function SpatialConceptPreview({ item }) {
     { key: "blueprint", label: "Blueprint" },
   ];
   const spatialTools = [
-    { key: "geometry", label: "Show Geometry" },
-    { key: "printZones", label: "Show Print Zones" },
-    { key: "promptNotes", label: "Show Prompt Notes" },
+    { key: "geometry", label: "Show Geometry", trackingKey: "geometry" },
+    { key: "printZones", label: "Show Print Zones", trackingKey: "print-zones" },
+    { key: "promptNotes", label: "Show Prompt Notes", trackingKey: "prompt-notes" },
   ];
   const promptNotes = [
     "Human-curated AI visual direction",
@@ -671,11 +709,29 @@ function SpatialConceptPreview({ item }) {
     "Founder Drop #001 system",
   ];
 
-  function toggleTool(toolKey) {
+  function handleModeChange(modeKey) {
+    setActiveMode(modeKey);
+    trackEvent(
+      "spatial_mode_change",
+      analyticsPayloadForConcept(item, {
+        mode: modeKey,
+        source: "spatial_preview",
+      }),
+    );
+  }
+
+  function toggleTool(tool) {
     setActiveTools((current) => ({
       ...current,
-      [toolKey]: !current[toolKey],
+      [tool.key]: !current[tool.key],
     }));
+    trackEvent(
+      "spatial_overlay_toggle",
+      analyticsPayloadForConcept(item, {
+        overlay: tool.trackingKey,
+        source: "spatial_preview",
+      }),
+    );
   }
 
   return (
@@ -696,13 +752,13 @@ function SpatialConceptPreview({ item }) {
             type="button"
             role="tab"
             className={"concept-view-toggle " + (activeMode === mode.key ? "is-active" : "")}
-            data-cta="spatial-preview-mode"
+            data-cta="spatial-mode-change"
             data-month={item.month.toLowerCase()}
             data-collection={item.slug}
             data-mode={mode.key}
             aria-selected={activeMode === mode.key}
             aria-pressed={activeMode === mode.key}
-            onClick={() => setActiveMode(mode.key)}
+            onClick={() => handleModeChange(mode.key)}
           >
             {mode.label}
           </button>
@@ -729,10 +785,10 @@ function SpatialConceptPreview({ item }) {
             key={tool.key}
             type="button"
             className={"spatial-tool-toggle " + (activeTools[tool.key] ? "is-active" : "")}
-            data-cta="spatial-preview-tool"
-            data-tool={tool.key}
+            data-cta="spatial-overlay-toggle"
+            data-overlay={tool.trackingKey}
             aria-pressed={activeTools[tool.key]}
-            onClick={() => toggleTool(tool.key)}
+            onClick={() => toggleTool(tool)}
           >
             {tool.label}
           </button>
@@ -757,6 +813,35 @@ function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
     ...conceptViewKeys.map((viewKey) => ({ key: viewKey, label: item.views[viewKey].label })),
     { key: "poster", label: "Poster" },
   ];
+
+  useEffect(() => {
+    trackEvent(
+      "founding_drop_view",
+      analyticsPayloadForConcept(item, {
+        source: "founding_drop",
+      }),
+    );
+  }, [item]);
+
+  function handleOpen360() {
+    trackEvent(
+      "open_360_concept",
+      analyticsPayloadForConcept(item, {
+        source: "founding_drop",
+      }),
+    );
+    onOpen360(item);
+  }
+
+  function handleFoundingVote() {
+    trackEvent(
+      "calendar_vote_click",
+      analyticsPayloadForConcept(item, {
+        source: "founding_drop",
+      }),
+    );
+    onConceptVote(item.id);
+  }
 
   return (
     <section className="founding-showcase" aria-labelledby="founding-drop-title">
@@ -822,7 +907,7 @@ function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
             data-cta="open-360-concept"
             data-month={item.month.toLowerCase()}
             data-collection={item.slug}
-            onClick={() => onOpen360(item)}
+            onClick={handleOpen360}
           >
             View 360 Concept
           </button>
@@ -831,15 +916,17 @@ function FoundingDropShowcase({ item, onOpen360, onConceptVote }) {
             target="_blank"
             rel="noreferrer"
             className="founding-vote-link"
-            data-cta="founding-drop-vote"
+            data-cta="calendar-concept-vote"
             data-month={item.month.toLowerCase()}
             data-collection={item.slug}
             data-category={item.category.toLowerCase()}
-            onClick={() => onConceptVote(item.id)}
+            data-source="founding-drop"
+            onClick={handleFoundingVote}
           >
             Vote for Token Black
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </a>
+          <VoteTrustNote />
           {/* True 3D should be lazy-loaded only when a real .glb asset exists. */}
           {item.modelPath && (
             <a
@@ -864,6 +951,16 @@ function Concept360Modal({ item, onClose, onConceptVote }) {
   const [activeViewKey, setActiveViewKey] = useState("front");
   const closeButtonRef = useRef(null);
   const surveyUrl = buildConceptSurveyUrl(item);
+
+  function handleModalVote() {
+    trackEvent(
+      "modal_vote_click",
+      analyticsPayloadForConcept(item, {
+        source: "concept_modal",
+      }),
+    );
+    onConceptVote(item.id);
+  }
 
   useEffect(() => {
     setActiveViewKey("front");
@@ -984,15 +1081,17 @@ function Concept360Modal({ item, onClose, onConceptVote }) {
               target="_blank"
               rel="noreferrer"
               className="concept-modal-vote"
-              data-cta="calendar-concept-vote"
+              data-cta="modal-concept-vote"
               data-month={item.month.toLowerCase()}
               data-collection={item.slug}
               data-category={item.category.toLowerCase()}
-              onClick={() => onConceptVote(item.id)}
+              data-source="concept-modal"
+              onClick={handleModalVote}
             >
               Vote for This Concept
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
+            <VoteTrustNote />
           </div>
         </div>
       </section>
@@ -1003,6 +1102,37 @@ function Concept360Modal({ item, onClose, onConceptVote }) {
 function ConceptCard({ item, onConceptVote, onOpen360 }) {
   const [activeViewKey, setActiveViewKey] = useState("front");
   const surveyUrl = buildConceptSurveyUrl(item);
+
+  function handleCalendarViewToggle(viewKey) {
+    setActiveViewKey(viewKey);
+    trackEvent(
+      "calendar_view_toggle",
+      analyticsPayloadForConcept(item, {
+        mode: viewKey,
+        source: "concept_calendar",
+      }),
+    );
+  }
+
+  function handleOpen360() {
+    trackEvent(
+      "open_360_concept",
+      analyticsPayloadForConcept(item, {
+        source: "concept_calendar",
+      }),
+    );
+    onOpen360(item);
+  }
+
+  function handleCalendarVote() {
+    trackEvent(
+      "calendar_vote_click",
+      analyticsPayloadForConcept(item, {
+        source: "concept_calendar",
+      }),
+    );
+    onConceptVote(item.id);
+  }
 
   return (
     <article className="group flex flex-col rounded-3xl border border-white/10 bg-ink p-4 transition duration-300 hover:-translate-y-1 hover:border-cyan/40">
@@ -1034,7 +1164,7 @@ function ConceptCard({ item, onConceptVote, onOpen360 }) {
               data-view={viewKey}
               aria-pressed={isActive}
               aria-label={"Show " + view.label.toLowerCase() + " view for " + item.name}
-              onClick={() => setActiveViewKey(viewKey)}
+              onClick={() => handleCalendarViewToggle(viewKey)}
             >
               {view.label}
             </button>
@@ -1113,7 +1243,7 @@ function ConceptCard({ item, onConceptVote, onOpen360 }) {
         data-cta="open-360-concept"
         data-month={item.month.toLowerCase()}
         data-collection={item.slug}
-        onClick={() => onOpen360(item)}
+        onClick={handleOpen360}
       >
         View 360 Concept
       </button>
@@ -1127,11 +1257,13 @@ function ConceptCard({ item, onConceptVote, onOpen360 }) {
         data-month={item.month.toLowerCase()}
         data-collection={item.slug}
         data-category={item.category.toLowerCase()}
-        onClick={() => onConceptVote(item.id)}
+        data-source="concept-calendar"
+        onClick={handleCalendarVote}
       >
         Vote for This Concept
         <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </a>
+      <VoteTrustNote />
     </article>
   );
 }

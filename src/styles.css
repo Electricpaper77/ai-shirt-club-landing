@@ -884,6 +884,16 @@ body {
   text-transform: uppercase;
 }
 
+.vote-trust-note {
+  width: 100%;
+  color: rgba(148, 163, 184, 0.88);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.55;
+  text-transform: uppercase;
+}
+
 .founding-showcase-actions {
   display: flex;
   flex-wrap: wrap;
